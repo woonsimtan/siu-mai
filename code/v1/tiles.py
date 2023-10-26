@@ -3,12 +3,6 @@ import random
 from collections import Counter
 from abc import ABC, abstractmethod
 
-# fixed values
-SUIT_VALUES = {
-    "Numbers": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    "Circles": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    "Bamboo": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-}
 
 # Tile class definition
 class Tile:
@@ -30,7 +24,7 @@ class Tile:
         else:
             return False
 
-
+DUMMY_TILE = Tile("DUMMY", "TILE")
 
 class TileList:
     def __init__(self, tiles = []):
@@ -71,7 +65,8 @@ class TileList:
         if tile in self.tiles:
             self.tiles.remove(tile)
         else:
-            raise ValueError("Tile to be removed is not in list.")
+            self.print()
+            raise ValueError(f"Tile to be removed is not in list: {tile.to_string()}")
 
     def remove_tiles(self, tile_list):
         for tile in tile_list.tiles:
@@ -105,31 +100,41 @@ class TileList:
     def check_for_peng(self, tile):
         return self.count(tile) == 2
 
-    def count(self, tile):
+    def count(self, tile): 
         return self.tiles.count(tile)
 
-    def copy(self):
+    def copy(self): # pragma: no cover
         return TileList(self.tiles)
 
+# need to test this though
     def check_for_win(self, tile):
+        if self.size() > 14:
+            raise ValueError("Invalid number of tiles.")
+
+        while DUMMY_TILE in self.tiles:
+            self.remove(DUMMY_TILE)
         copy = self.copy()
         copy.add(tile)
         copy.sort()
 
-        takeout_pair = self.size() % 3 == 2
+        if tile == Tile("", ""):
+            return False
+
+        takeout_pair = copy.size() % 3 == 2
         if takeout_pair:
-            counts = self.tile_counts()
-            pairs = [tile for tile in counts.keys() if counts[tile] >= 2]
+            counts = copy.tile_counts()
+            pairs = [Tile(tile_str[:-1], tile_str[-1]) for tile_str in counts.keys() if counts[tile_str] >= 2]
         else:
             pairs = ["dummy"]
 
         for pair in pairs:
-            test = copy
+            test = copy.copy()
             if takeout_pair:
                 test.remove_tiles(TileList([pair, pair]))
 
             while test.size() > 0:
                 t = test.tiles[0]
+
                 if test.count(t) < 3:
                     t2 = Tile(t.suit_type, str(int(t.value) + 1))
                     t3 = Tile(t.suit_type, str(int(t.value) + 2))
@@ -144,45 +149,3 @@ class TileList:
             if test.size() == 0:
                 return True
         return False
-
-
-
-def create_tiles() -> TileList:
-    all_tiles = TileList()
-    # for every suit
-    for key in SUIT_VALUES.keys():
-        # for every value
-        for value in SUIT_VALUES[key]:
-            # create 4 tiles
-            all_tiles.add_tiles(TileList([Tile(key, value) for i in range(4)]))
-    # shuffle
-    all_tiles.shuffle()
-    # return list of tiles
-    return all_tiles
-
-# def distribute_tiles(to_distribute):
-#     player_tiles = [TileList(), TileList(), TileList(), TileList()]
-#     player_tiles[0].print()
-#     for i in range(13):
-#         for j in range(4):
-#             t = to_distribute.remove_random_tile()
-#             print(t.to_string())
-#             player_tiles[j].add(t)
-#     return player_tiles
-
-
-
-
-def main():
-    player_types = ["RANDOM", "RANDOM", "RANDOM", "RANDOM"]
-    deck = create_tiles()
-    deck.print()
-    # distributed = distribute_tiles(deck)
-
-    print(deck.size())
-    # print(distributed[0].size())
-
-
-
-
-

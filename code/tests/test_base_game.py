@@ -1,6 +1,6 @@
-# content of test_expectation.py
 import pytest
-from base_game import *
+# from base_game import *
+from tiles import *
 
 @pytest.mark.parametrize("tileA, tileB", [
     (Tile("A", "1"), Tile("A", "1")),
@@ -101,11 +101,22 @@ def test_remove_random(tile_list):
 def test_tile_list_contains(tile_list, tile, expected):
     assert tile_list.contains(tile) == expected
 
-# failing
 @pytest.mark.parametrize("tile_list, tile, expected", [
-    (TileList([Tile("A", "1"), Tile("A", "1"), ("B", "2")]), Tile("A", "1"), True),
-    (TileList([Tile("B", "2"), Tile("A", "1"), ("B", "2")]), Tile("B", "1"), False),
-    (TileList([Tile("A", "1"), Tile("A", "1"), ("B", "2")]), Tile("B", "1"), False),
+    (TileList([Tile("A", "1"), Tile("A", "1"), Tile("B", "2")]), Tile("A", "1"), True),
+    (TileList([Tile("B", "2"), Tile("A", "1"), Tile("B", "2")]), Tile("B", "1"), False),
+    (TileList([Tile("A", "1"), Tile("A", "1"), Tile("B", "2")]), Tile("B", "1"), False),
     ])
 def test_tile_list_check_peng(tile_list, tile, expected):
     assert tile_list.check_for_peng(tile) == expected
+
+@pytest.mark.parametrize("tile_list, tile, expected", [
+    (TileList([Tile("A", "1"), Tile("A", "1"), Tile("B", "2")]), Tile("A", "1"), 2),
+    (TileList([Tile("B", "2"), Tile("A", "1"), Tile("B", "2")]), Tile("B", "1"), 0),
+    (TileList([Tile("A", "1"), Tile("A", "1"), Tile("B", "1")]), Tile("B", "1"), 1),
+    ])
+def test_tile_list_check_count(tile_list, tile, expected):
+    assert tile_list.count(tile) == expected
+
+# def test_check_win(tile_list, expected):
+#     pass
+
