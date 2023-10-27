@@ -22,6 +22,7 @@ def create_tiles() -> TileList:
     # return list of tiles
     return all_tiles
 
+
 def distribute_tiles(to_distribute):
     player_tiles = [[], [], [], []]
     for i in range(13):
@@ -38,6 +39,7 @@ def any_peng(players, discarded):
             return i
     return -1
 
+
 def any_wins(players, discarded):
     try:
         for i in range(4):
@@ -46,7 +48,10 @@ def any_wins(players, discarded):
                 return i
         return -1
     except ValueError:
-        raise ValueError(f"Player {i} has invalid number of tiles: {p.possible_discards.size()}")
+        raise ValueError(
+            f"Player {i} has invalid number of tiles: {p.possible_discards.size()}"
+        )
+
 
 def setup_players(player_type_list, tiles):
     players = []
@@ -55,18 +60,6 @@ def setup_players(player_type_list, tiles):
             player = RandomAgent(tiles[i])
             players.append(player)
     return players
-
-def print_game_output(player, number, pickup, last_discarded):
-    print("---------------")
-    print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-
-    print (f"Player {number} picked up: {pickup.to_string()}")
-    player.possible_discards.print()
-    player.displayed_tiles.print()
-    player.locked_tiles.print()
-    player.pair.print()
-    print (f"Player {number} discarded: {last_discarded.to_string()}")
-
 
 
 def main():
@@ -80,53 +73,36 @@ def main():
     player_tiles = distribute_tiles(deck)
     all_players = setup_players(player_types, player_tiles)
 
-    for player in all_players:
-        print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-
-
-# current bug is that tile count of player goes over 14?
+    # gameplay
     while any_wins(all_players, last_discarded) == -1 and deck.size() > 0:
-
-        # if someone can peng
-        if any_peng(all_players, last_discarded) != -1:
-            player_number = any_peng(all_players, last_discarded)
+        # check for players that can peng - assume peng if they can
+        peng = any_peng(all_players, last_discarded)
+        if peng != -1:
+            player_number = peng
             player = all_players[player_number]
-            # print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-
             last_discarded = all_players[player_number].peng(last_discarded)
-            # print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-
-
         else:
             player = all_players[player_number]
-            # print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-
             pickup = deck.remove_random_tile()
             last_discarded = all_players[player_number].play_a_turn(pickup)
-            # print_game_output(all_players[player_number], player_number, pickup, last_discarded)
 
-        print(player_number)
-        print(player.displayed_tiles.size() + player.possible_discards.size() + player.locked_tiles.size() + player.pair.size())
-        
-            
-            
-        # if anyone has won end the game
+        # if anyone has won from pickup
         if isinstance(last_discarded, str):
             break
-            
+
+        # next player
         player_number = (player_number + 1) % 4
 
+    # end of game output
+    if isinstance(last_discarded, str):
+        print(f"Player {player_number} has won by pickup")
+        all_players[player_number].print_all_tiles()
+    elif any_wins(all_players, last_discarded) != -1:
+        player_number = any_wins(all_players, last_discarded)
+        all_players[player_number].possible_discards.add(last_discarded)
+        print(f"Player {player_number} has won from a discarded tile")
+
+        all_players[player_number].print_all_tiles()
+    else:
+        print("Nobody won")
     print("GAME ENDED")
-
-
-
-
-
-
-
-    
-
-
-
-
-

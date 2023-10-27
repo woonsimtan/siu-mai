@@ -24,14 +24,18 @@ class Tile:
         else:
             return False
 
+
 DUMMY_TILE = Tile("DUMMY", "TILE")
 
+
 class TileList:
-    def __init__(self, tiles = []):
+    def __init__(self, tiles=[]):
         self.tiles = tiles
 
     def sort(self):
-        self.tiles = sorted(self.tiles, key=lambda x: (x.suit_type, x.value), reverse=False)
+        self.tiles = sorted(
+            self.tiles, key=lambda x: (x.suit_type, x.value), reverse=False
+        )
 
     def __eq__(self, other):
         self.sort()
@@ -50,7 +54,7 @@ class TileList:
 
     def print(self):
         print(self.print_form())
-        
+
     def add(self, new_tile):
         self.tiles.append(new_tile)
 
@@ -58,7 +62,7 @@ class TileList:
         for tile in tile_list.tiles:
             self.add(tile)
 
-    def shuffle(self): # pragma: no cover
+    def shuffle(self):  # pragma: no cover
         random.shuffle(self.tiles)
 
     def remove(self, tile):
@@ -71,7 +75,7 @@ class TileList:
     def remove_tiles(self, tile_list):
         for tile in tile_list.tiles:
             self.remove(tile)
-        
+
     def size(self):
         return len(self.tiles)
 
@@ -100,21 +104,22 @@ class TileList:
     def check_for_peng(self, tile):
         return self.count(tile) == 2
 
-    def count(self, tile): 
+    def count(self, tile):
         return self.tiles.count(tile)
 
-    def copy(self): # pragma: no cover
-        return TileList(self.tiles)
+    def copy(self):
+        return TileList(self.tiles.copy())
 
-# need to test this though
+    # need to test this though
     def check_for_win(self, tile):
+        while DUMMY_TILE in self.tiles:
+            self.remove(DUMMY_TILE)
         if self.size() > 14:
             raise ValueError("Invalid number of tiles.")
 
-        while DUMMY_TILE in self.tiles:
-            self.remove(DUMMY_TILE)
         copy = self.copy()
         copy.add(tile)
+
         copy.sort()
 
         if tile == Tile("", ""):
@@ -123,7 +128,11 @@ class TileList:
         takeout_pair = copy.size() % 3 == 2
         if takeout_pair:
             counts = copy.tile_counts()
-            pairs = [Tile(tile_str[:-1], tile_str[-1]) for tile_str in counts.keys() if counts[tile_str] >= 2]
+            pairs = [
+                Tile(tile_str[:-1], tile_str[-1])
+                for tile_str in counts.keys()
+                if counts[tile_str] >= 2
+            ]
         else:
             pairs = ["dummy"]
 
