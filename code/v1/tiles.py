@@ -112,8 +112,10 @@ class TileList:
 
     # need to test this though
     def check_for_win(self, tile):
+        # ensure no dummy tiles
         while DUMMY_TILE in self.tiles:
             self.remove(DUMMY_TILE)
+        # check for valid number of tiles - can't have more than 14 tiles
         if self.size() > 14:
             raise ValueError("Invalid number of tiles.")
 
@@ -122,8 +124,8 @@ class TileList:
 
         copy.sort()
 
-        if tile == Tile("", ""):
-            return False
+        # if tile == Tile("", ""):
+        #     return False
 
         takeout_pair = copy.size() % 3 == 2
         if takeout_pair:
@@ -151,9 +153,7 @@ class TileList:
                         test.remove_tiles(TileList([t, t2, t3]))
                     else:
                         break
-                elif test.count(t) < 3:
-                    break
-                else:
+                elif test.count(t) == 3:
                     test.remove_tiles(TileList([t, t, t]))
             if test.size() == 0:
                 return True
