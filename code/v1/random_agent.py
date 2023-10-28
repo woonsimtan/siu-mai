@@ -7,18 +7,20 @@ class RandomAgent:
         self.locked_tiles = TileList([])
         self.possible_discards = distributed_tiles
         self.displayed_tiles = TileList([])
-        self.lock_triples()
-        self.lock_pair()
 
-    def print_all_tiles(self):
+    def all_tiles(self):
         combined = TileList([])
         combined.add_tiles(self.pair)
         combined.add_tiles(self.locked_tiles)
         combined.add_tiles(self.possible_discards)
         combined.add_tiles(self.displayed_tiles)
-        combined.print()
+        return combined
+
+    def print_all_tiles(self):  # pragma: no cover
+        self.all_tiles().print()
 
     def total_tile_count(self):
+        # TODO: raise error if more than 14 tiles
         return (
             self.pair.size()
             + self.locked_tiles.size()
@@ -30,7 +32,7 @@ class RandomAgent:
         win = self.possible_discards.check_for_win(new_tile)
         self.possible_discards.add(new_tile)
         if win:
-            return "WIN"
+            return DUMMY_TILE
         else:
             self.lock_triples()
             self.lock_pair()
@@ -81,7 +83,8 @@ class RandomAgent:
                 self.possible_discards.remove_tiles(TileList([pair_tile, pair_tile]))
 
     def check_for_win(self, tile):
-        return self.possible_discards.check_for_win(tile)
+        all_tiles = self.all_tiles()
+        return all_tiles.check_for_win(tile)
 
     def check_for_peng(self, tile):
         return self.possible_discards.check_for_peng(tile)

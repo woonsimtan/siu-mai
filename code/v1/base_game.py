@@ -9,12 +9,12 @@ SUIT_VALUES = {
 }
 
 
-def create_tiles() -> TileList:
+def create_tiles(tiles=SUIT_VALUES) -> TileList:
     all_tiles = TileList()
     # for every suit
-    for key in SUIT_VALUES.keys():
+    for key in tiles.keys():
         # for every value
-        for value in SUIT_VALUES[key]:
+        for value in tiles[key]:
             # create 4 tiles
             all_tiles.add_tiles(TileList([Tile(key, value) for i in range(4)]))
     # shuffle
@@ -53,7 +53,7 @@ def any_wins(players, discarded):
         )
 
 
-def setup_players(player_type_list, tiles):
+def setup_players(player_type_list, tiles): # pragma: no cover
     players = []
     for i in range(4):
         if player_type_list[i] == "RANDOM":
@@ -62,7 +62,7 @@ def setup_players(player_type_list, tiles):
     return players
 
 
-def main():
+def main(): # pragma: no cover
     # set initial values
     player_types = ["RANDOM", "RANDOM", "RANDOM", "RANDOM"]
     player_number = 0
@@ -87,14 +87,14 @@ def main():
             last_discarded = all_players[player_number].play_a_turn(pickup)
 
         # if anyone has won from pickup
-        if isinstance(last_discarded, str):
+        if last_discarded == DUMMY_TILE:
             break
 
         # next player
         player_number = (player_number + 1) % 4
 
     # end of game output
-    if isinstance(last_discarded, str):
+    if last_discarded == DUMMY_TILE:
         print(f"Player {player_number} has won by pickup")
         all_players[player_number].print_all_tiles()
     elif any_wins(all_players, last_discarded) != -1:

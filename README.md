@@ -4,7 +4,7 @@
 
 ## Description
 
-The objective of this project is to develop an agent to play Mahjong using Monte Carlo Tree Search. This is done with 3 iterations of the rules, increasing in difficulty. The rules followed [here](http://www.mahjong-mil.org/pdf/Brief_Introduction_to_Bloody_Mahjong.pdf) are provided by the Mahjong International League with the following adaptations:
+The objective of this project is to develop an agent to play Mahjong using Monte Carlo Tree Search. This is done with 3 iterations of the rules, increasing in difficulty. The [rules](http://www.mahjong-mil.org/pdf/Brief_Introduction_to_Bloody_Mahjong.pdf) followed are provided by the Mahjong International League with the following adaptations for each iteration:
 
 1. Ignore all scoring and a single round of the game will end when a single player has won. The agent's goal is to end the game with a winning hand.
 2. Implement win scoring. The agent will be trying to maximise its win.
