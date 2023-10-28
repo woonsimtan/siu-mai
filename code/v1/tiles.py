@@ -121,11 +121,7 @@ class TileList:
 
         copy = self.copy()
         copy.add(tile)
-
         copy.sort()
-
-        # if tile == Tile("", ""):
-        #     return False
 
         takeout_pair = copy.size() % 3 == 2
         if takeout_pair:

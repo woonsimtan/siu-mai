@@ -67,7 +67,7 @@ def main():
     player_types = ["RANDOM", "RANDOM", "RANDOM", "RANDOM"]
     player_number = 0
     discarded_tiles = TileList()
-    last_discarded = Tile("DUMMY", "TILE")
+    last_discarded = DUMMY_TILE
 
     deck = create_tiles()
     player_tiles = distribute_tiles(deck)
