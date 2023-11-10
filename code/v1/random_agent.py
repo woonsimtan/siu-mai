@@ -8,6 +8,13 @@ class RandomAgent:
         self.possible_discards = distributed_tiles
         self.displayed_tiles = TileList([])
 
+    def hidden_tiles(self):
+        combined = TileList([])
+        combined.add_tiles(self.pair)
+        combined.add_tiles(self.locked_tiles)
+        combined.add_tiles(self.possible_discards)
+        return combined
+
     def all_tiles(self):
         combined = TileList([])
         combined.add_tiles(self.pair)
