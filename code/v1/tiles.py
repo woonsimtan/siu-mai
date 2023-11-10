@@ -111,10 +111,12 @@ class TileList:
         return TileList(self.tiles.copy())
 
     def check_for_win(self, tile):
+        if tile == DUMMY_TILE:
+            return False
         # ensure no dummy tiles
         while DUMMY_TILE in self.tiles:
             self.remove(DUMMY_TILE)
-            
+
         # check for valid number of tiles - can't have more than 14 tiles
         if self.size() > 14:
             raise ValueError("Invalid number of tiles.")
