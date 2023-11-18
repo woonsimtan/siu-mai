@@ -85,3 +85,7 @@ The following functions are defined for the agent:
 - `check_for_win` checks for a winning hand with all of the agent's tiles.
 - `check_for_peng` checks if the agent can peng based on their hand.
 - `peng` shifts tiles into display, and discards a tile.
+
+## mcts_node.py and mcts_agent.py
+
+should have a node for peng/no peng and selecting discard tile

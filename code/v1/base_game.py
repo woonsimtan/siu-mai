@@ -1,6 +1,7 @@
 from v1.tiles import *
 from v1.random_agent import *
 import pandas as pd
+from v1.mcts_agent import *
 
 # fixed values
 SUIT_VALUES = {
@@ -49,6 +50,7 @@ def any_wins(players, discarded):
                 return i
         return -1
     except ValueError:
+        p.print_all_tiles()
         raise ValueError(
             f"Player {i} has invalid number of tiles: {p.possible_discards.size()}"
         )
@@ -59,6 +61,9 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
     for i in range(4):
         if player_type_list[i] == "RANDOM":
             player = RandomAgent(tiles[i])
+            players.append(player)
+        elif player_type_list[i] == "MCTS":
+            player = MCTSAgent(tiles[i], i)
             players.append(player)
     return players
 
@@ -84,7 +89,7 @@ def main(player_types):  # pragma: no cover
     # set initial values
 
     player_number = 0
-    discarded_tiles = TileList()
+    discarded_tiles = TileList([])
     last_discarded = DUMMY_TILE
     turn = 1
 
@@ -94,23 +99,38 @@ def main(player_types):  # pragma: no cover
 
     # gameplay
     while any_wins(all_players, last_discarded) == -1 and deck.size() > 0:
-        # check for players that can peng - assume peng if they can
+        # check for players that can peng
         peng = any_peng(all_players, last_discarded)
+        # if can peng
         if peng != -1:
-            player_number = peng
-            player = all_players[player_number]
-            last_discarded = all_players[player_number].peng(last_discarded)
+            player = all_players[peng]
+            chose_peng = player.choose_peng()
+            if chose_peng:
+                player_number = peng
+                player.peng(last_discarded)
 
-        else:
+        # pickup
+        if peng == -1 or not chose_peng:
+            discarded_tiles.add(last_discarded)
             player = all_players[player_number]
-            pickup = deck.remove_random_tile()
-            last_discarded = all_players[player_number].play_a_turn(pickup)
+            new_tile = deck.remove_random_tile()
+            if player.check_for_win(new_tile):
+                break
+            else:
+                player.pickup(new_tile)
+
+        # discard
+        last_discarded = all_players[player_number].discard(
+            all_players, discarded_tiles, deck, last_discarded
+        )
 
         turn += 1
 
         # if anyone has won from pickup
         if last_discarded == DUMMY_TILE:
             break
+
+        # print(f"Player {player_number} has finished a turn.")
 
         # next player
         player_number = (player_number + 1) % 4
