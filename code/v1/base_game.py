@@ -65,6 +65,9 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
         elif player_type_list[i] == "MCTS":
             player = MCTSAgent(tiles[i], i)
             players.append(player)
+        elif player_type_list[i] == "SEMIRANDOM":
+            player = SemiRandomAgent(tiles[i])
+            players.append(player)
     return players
 
 

@@ -218,11 +218,11 @@ class GameState:
             or (self.deck.size() == 0)
             or (len(self.get_legal_actions()) == 0)
         )
-        if len(self.get_legal_actions()) == 0:
-            print("No valid actions")
-            print(game_over)
-            print((winning_player != -1))
-            print((self.deck.size() == 0))
+        # if len(self.get_legal_actions()) == 0:
+        #     print("No valid actions")
+        #     print(game_over)
+        #     print((winning_player != -1))
+        #     print((self.deck.size() == 0))
         return game_over
 
     def game_result(self):
@@ -272,14 +272,11 @@ class GameState:
             # print("case 1")
             self.current_player = any_peng(self.players, self.discarded_tile)
             self.players[self.current_player].peng(self.discarded_tile)
-            # self.players[self.current_player].remove_tiles(
-            #     TileList([self.discarded_tile] * 3)
-            # )
-            # self.state["displayed_tiles"].add_tiles(TileList([self.discarded_tile] * 3))
             self.discarded_tile = DUMMY_TILE
         # Case 2: PICKUP
         elif action[0] == "PICKUP":
             # print("case 2")
+            # needs to be shifted to legal moves
             pool = self.get_hidden_tiles(self.current_player)
             for k in range(4):
                 if k != self.current_player:
