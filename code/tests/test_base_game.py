@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from random_agent import RandomAgent
+from random_agent import SemiRandomAgent
 from tiles import Tile, TileList, DUMMY_TILE
 from base_game import *
 
@@ -36,20 +36,20 @@ def test_distribute_tiles(n):
     [
         (
             [
-                RandomAgent(TileList([])),
-                RandomAgent(TileList([])),
-                RandomAgent(TileList([])),
-                RandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
             ],
             DUMMY_TILE,
             -1,
         ),
         (
             [
-                RandomAgent(TileList([])),
-                RandomAgent(TileList([DUMMY_TILE for i in range(2)])),
-                RandomAgent(TileList([])),
-                RandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
+                SemiRandomAgent(TileList([DUMMY_TILE for i in range(2)])),
+                SemiRandomAgent(TileList([])),
+                SemiRandomAgent(TileList([])),
             ],
             DUMMY_TILE,
             1,
@@ -60,7 +60,7 @@ def test_any_peng(players, tile, expected):
     assert any_peng(players, tile) == expected
 
 
-DUMMY_AGENT = RandomAgent(
+DUMMY_AGENT = SemiRandomAgent(
     TileList(
         [
             Tile("A", "1"),
@@ -79,7 +79,9 @@ DUMMY_AGENT = RandomAgent(
         ]
     )
 )
-DUMMY_AGENT_WINNING_HAND = RandomAgent(TileList([Tile("B", "1") for i in range(13)]))
+DUMMY_AGENT_WINNING_HAND = SemiRandomAgent(
+    TileList([Tile("B", "1") for i in range(13)])
+)
 
 
 @pytest.mark.parametrize(
@@ -100,11 +102,11 @@ def test_any_wins(players, tile, expected):
 @pytest.mark.parametrize(
     "players, tile, expected",
     [
-        # ([DUMMY_AGENT, RandomAgent(TileList([DUMMY_TILE for i in range(13)])), DUMMY_AGENT, DUMMY_AGENT], DUMMY_TILE, "Player 1 has invalid number of tiles: 0"),
+        # ([DUMMY_AGENT, SemiRandomAgent(TileList([DUMMY_TILE for i in range(13)])), DUMMY_AGENT, DUMMY_AGENT], DUMMY_TILE, "Player 1 has invalid number of tiles: 0"),
         (
             [
                 DUMMY_AGENT,
-                RandomAgent(TileList([Tile("A", "1") for i in range(15)])),
+                SemiRandomAgent(TileList([Tile("A", "1") for i in range(15)])),
                 DUMMY_AGENT,
                 DUMMY_AGENT,
             ],

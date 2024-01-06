@@ -2,13 +2,55 @@ from v1.tiles import *
 
 
 class RandomAgent:
+    def __init__(self, possible_discards):
+        self.possible_discards = possible_discards
+        self.displayed_tiles = TileList([])
+
+    def pickup(self, new_tile):
+        self.possible_discards.add(new_tile)
+
+    def all_tiles(self):
+        tiles = self.possible_discards.copy()
+        tiles.add_tiles(self.displayed_tiles)
+        return tiles
+
+    def check_for_win(self, tile=DUMMY_TILE):
+        all_tiles = self.all_tiles()
+        return all_tiles.check_for_win(tile)
+
+    def check_for_peng(self, tile):
+        return self.possible_discards.check_for_peng(tile)
+
+    def choose_peng(self):
+        return True
+
+    def peng(self, tile):
+        self.possible_discards.add(tile)
+        l = TileList([tile for i in range(3)])
+        self.displayed_tiles.add_tiles(l)
+        self.possible_discards.remove_tiles(l)
+
+    def discard(self, all_players, discarded_tiles, deck, last_discarded):
+        return self.possible_discards.remove_random_tile()
+
+    def get_possible_discards(self):
+        return self.possible_discards
+
+    def get_hidden_tiles(self):
+        return self.possible_discards
+
+
+class SemiRandomAgent:
     def __init__(self, distributed_tiles):
         self.pair = TileList([])
         self.locked_tiles = TileList([])
         self.possible_discards = distributed_tiles
         self.displayed_tiles = TileList([])
 
-    def hidden_tiles(self):
+    def get_possible_discards(self):
+        return self.possible_discards
+
+    def get_hidden_tiles(self):
         combined = TileList([])
         combined.add_tiles(self.pair)
         combined.add_tiles(self.locked_tiles)
@@ -35,17 +77,27 @@ class RandomAgent:
             + self.displayed_tiles.size()
         )
 
-    def play_a_turn(self, new_tile):
-        win = self.possible_discards.check_for_win(new_tile)
+    def pickup(self, new_tile):
         self.possible_discards.add(new_tile)
-        if win:
-            return DUMMY_TILE
-        else:
-            self.lock_triples()
-            self.lock_pair()
-            return self.discard()
+        self.lock_triples()
+        self.lock_pair()
 
-    def discard(self):
+    # def play_a_turn(self, new_tile):
+    #     win = self.possible_discards.check_for_win(new_tile)
+    #     self.possible_discards.add(new_tile)
+    #     if win:
+    #         return DUMMY_TILE
+    #     else:
+    #         self.lock_triples()
+    #         self.lock_pair()
+    #         return self.discard()
+
+    # def discard(self):
+    #     return self.possible_discards.remove_random_tile()
+
+    def discard(self, all_players, discarded_tiles, deck, last_discarded):
+        self.lock_triples()
+        self.lock_pair()
         return self.possible_discards.remove_random_tile()
 
     def lock_three_of_a_kind(self):
@@ -89,16 +141,18 @@ class RandomAgent:
                 self.pair.add_tiles(TileList([pair_tile, pair_tile]))
                 self.possible_discards.remove_tiles(TileList([pair_tile, pair_tile]))
 
-    def check_for_win(self, tile):
+    def check_for_win(self, tile=DUMMY_TILE):
         all_tiles = self.all_tiles()
         return all_tiles.check_for_win(tile)
 
     def check_for_peng(self, tile):
         return self.possible_discards.check_for_peng(tile)
 
+    def choose_peng(self):
+        return True
+
     def peng(self, tile):
         self.possible_discards.add(tile)
         l = TileList([tile for i in range(3)])
         self.displayed_tiles.add_tiles(l)
         self.possible_discards.remove_tiles(l)
-        return self.discard()

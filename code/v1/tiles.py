@@ -105,12 +105,42 @@ class TileList:
         return self.count(tile) == 2
 
     def count(self, tile):
-        return self.tiles.count(tile)
+        x = 0
+        for t in self.tiles:
+            if tile == t:
+                x += 1
+        return x
 
     def copy(self):
         return TileList(self.tiles.copy())
 
-    def check_for_win(self, tile):
+    def check_for_win(self, tile=None):
+        # while DUMMY_TILE in self.tiles:
+        #     self.remove(DUMMY_TILE)
+
+        # if self.size() > 14:
+        #     raise ValueError("Invalid number of tiles.")
+
+        # copy = self.tiles.copy()
+        # if tile is not None:
+        #     copy.add(tile)
+        # copy.sort()
+
+        # counts = copy.tile_counts()
+        # pairs = [
+        #     Tile(tile_str[:-1], tile_str[-1])
+        #     for tile_str in counts.keys()
+        #     if counts[tile_str] >= 2
+        # ]
+
+        # for pair in pairs:
+        #     trial = copy.copy()
+        #     trial.remove_tiles(TileList([pair] * 2))
+
+        #     hands = []
+
+        #     t = trial.tiles[0]
+
         if tile == DUMMY_TILE:
             return False
         # ensure no dummy tiles
@@ -122,7 +152,8 @@ class TileList:
             raise ValueError("Invalid number of tiles.")
 
         copy = self.copy()
-        copy.add(tile)
+        if tile is not None:
+            copy.add(tile)
         copy.sort()
 
         takeout_pair = copy.size() % 3 == 2

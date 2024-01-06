@@ -1,9 +1,9 @@
 import pytest
-from random_agent import RandomAgent
+from random_agent import SemiRandomAgent
 from tiles import Tile, TileList, DUMMY_TILE
 
 # wins on tile A5
-random_agent_triple = RandomAgent(
+random_agent_triple = SemiRandomAgent(
     TileList(
         [
             Tile("A", "1"),
@@ -23,7 +23,7 @@ random_agent_triple = RandomAgent(
     )
 )
 # wins on tile A9
-random_agent_consecutive = RandomAgent(
+random_agent_consecutive = SemiRandomAgent(
     TileList(
         [
             Tile("A", "1"),
@@ -146,7 +146,7 @@ def test_check_for_win(player, tile):
     "player, tile",
     [
         (
-            RandomAgent(
+            SemiRandomAgent(
                 TileList(
                     [
                         Tile("A", "1"),
@@ -166,7 +166,7 @@ def test_check_for_peng(player, tile):
     "player, tile",
     [
         (
-            RandomAgent(
+            SemiRandomAgent(
                 TileList(
                     [
                         Tile("A", "1"),
@@ -177,7 +177,7 @@ def test_check_for_peng(player, tile):
             Tile("A", "1"),
         ),
         (
-            RandomAgent(
+            SemiRandomAgent(
                 TileList(
                     [
                         Tile("A", "1"),
@@ -197,12 +197,12 @@ def test_check_for_peng(player, tile):
     "player, expected_possible_discard, expected_locked",
     [
         (
-            RandomAgent(TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "3")])),
+            SemiRandomAgent(TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "3")])),
             TileList([]),
             TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "3")]),
         ),
         (
-            RandomAgent(TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "4")])),
+            SemiRandomAgent(TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "4")])),
             TileList([Tile("A", "1"), Tile("A", "2"), Tile("A", "4")]),
             TileList([]),
         ),
@@ -218,7 +218,7 @@ def test_lock_three_consecutive(player, expected_possible_discard, expected_lock
     "player, tile, expected_displayed",
     [
         (
-            RandomAgent(TileList([Tile("A", "1"), Tile("A", "1"), Tile("A", "3")])),
+            SemiRandomAgent(TileList([Tile("A", "1"), Tile("A", "1"), Tile("A", "3")])),
             Tile("A", "1"),
             TileList([Tile("A", "1"), Tile("A", "1"), Tile("A", "1")]),
         ),

@@ -76,12 +76,15 @@ The following functions are defined for the agent:
 
 - `all_tiles` returns a complete TileList of all the tiles the agent holds.
 - `total_tile_count` returns count of all tiles held.
-- `play_a_turn` checks for a possible win based on the picked up tile, and returns a dummy tile if so, otherwise checks for triples and pairs to lock, and randomly selects a discard tile.
 - `discard` removes a randomly selected tile and returns it.
 - `lock_three_of_a_kind` checks for 3 of the same tiles within the agent's hand, takes them out of the possible discard pile and locks them.
-- `lock_three_of_a_kind` checks for 3 consecutive tiles from the same suit within the agent's hand, takes them out of the possible discard pile and locks them.
+- `lock_three_consecutive` checks for 3 consecutive tiles from the same suit within the agent's hand, takes them out of the possible discard pile and locks them.
 - `lock_triples` locks both three of a kind and consecutive tiles.
 - `lock_pair` checks for pairs in the players hand, selecting a random pair if there are multiple, and locks those.
 - `check_for_win` checks for a winning hand with all of the agent's tiles.
 - `check_for_peng` checks if the agent can peng based on their hand.
-- `peng` shifts tiles into display, and discards a tile.
+- `peng` shifts tiles into display, and removes them from possible discards.
+
+## mcts_node.py and mcts_agent.py
+
+should have a node for peng/no peng and selecting discard tile
