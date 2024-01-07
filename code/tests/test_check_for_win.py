@@ -10,7 +10,6 @@ def encode_hand(hand):
     # Dot Suit: 18-26
     encoded = [0] * 34
     encoding = {"Bamboo": 0, "Numbers": 9, "Circles": 18}
-    # encoded = []
     tiles = hand.tiles
     for t in tiles:
         encoded[encoding[t.suit_type] + int(t.value) - 1] += 1
@@ -19,17 +18,15 @@ def encode_hand(hand):
 
 def test_check_for_win():
     agari = Agari()
-
-    for i in range(10000):
+    test_cases = 1000000
+    success = 0
+    for i in range(test_cases):
         hand = TileList([])
         all_tiles = create_tiles()
         for j in range(14):
             hand.add(all_tiles.remove_random_tile())
         encoded_hand = encode_hand(hand)
         hand.print()
-
-        assert hand.check_for_win() == agari.is_agari(encoded_hand)
-
-
-# def test_matches(tileA, tileB):
-#     assert hand.check_for_win(tile) == agari.is_agari(encoded_hand)
+        if hand.check_for_win() == agari.is_agari(encoded_hand):
+            success += 1
+    assert success == test_cases
