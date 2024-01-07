@@ -25,7 +25,7 @@ def any_wins(players, discarded):
     except ValueError:
         p.print_all_tiles()
         raise ValueError(
-            f"Player {i} has invalid number of tiles: {p.get_hidden_tiles().size()}"
+            f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
         )
 
 

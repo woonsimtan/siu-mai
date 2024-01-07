@@ -145,6 +145,17 @@ files = [
 ]
 
 [[package]]
+name = "mahjong"
+version = "1.2.1"
+description = "Mahjong hands calculation"
+optional = false
+python-versions = "*"
+files = [
+    {file = "mahjong-1.2.1-py3-none-any.whl", hash = "sha256:5df358127a73a26751f1f60635c65e02e6f363ce70339d3478c396301163277e"},
+    {file = "mahjong-1.2.1.tar.gz", hash = "sha256:afbef2f5fea656b73eacb6396176d1e80cd06123c24dbea27df87100e8502097"},
+]
+
+[[package]]
 name = "mypy-extensions"
 version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
@@ -386,4 +397,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11"
-content-hash = "2756b2b0701edb2debe161ab0e27a50cadabf87c74f48369adca2230d789dd23"
+content-hash = "c75e084a2af693aac89e7c94e499e9a34044ae06c56f074c47a445cde64d0eb7"
