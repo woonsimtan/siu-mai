@@ -2,8 +2,6 @@ import numpy as np
 from collections import defaultdict
 from v1.tiles import TileList, Tile
 
-# from v1.base_game import any_peng, any_wins
-
 DUMMY_TILE = Tile("DUMMY", "TILE")
 
 
@@ -139,7 +137,7 @@ class MonteCarloTreeSearchNode:
 
     def best_action(self):
         # print("best action")
-        simulation_no = 100
+        simulation_no = 1000
 
         for i in range(simulation_no):
             v = self._tree_policy()

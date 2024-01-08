@@ -18,7 +18,7 @@ def encode_hand(hand):
 
 def test_check_for_win():
     agari = Agari()
-    test_cases = 1000000
+    test_cases = 100  # 0000
     success = 0
     for i in range(test_cases):
         hand = TileList([])

@@ -84,19 +84,29 @@ DUMMY_AGENT_WINNING_HAND = SemiRandomAgent(
 )
 
 
-# @pytest.mark.parametrize(
-#     "players, tile, expected",
-#     [
-#         ([DUMMY_AGENT, DUMMY_AGENT, DUMMY_AGENT, DUMMY_AGENT], DUMMY_TILE, -1),
-#         (
-#             [DUMMY_AGENT, DUMMY_AGENT_WINNING_HAND, DUMMY_AGENT, DUMMY_AGENT],
-#             Tile("B", "1"),
-#             1,
-#         ),
-#     ],
-# )
-# def test_any_wins(players, tile, expected):
-#     assert any_wins(players, tile) == expected
+@pytest.mark.parametrize(
+    "players, tile, expected",
+    [
+        ([DUMMY_AGENT, DUMMY_AGENT, DUMMY_AGENT, DUMMY_AGENT], DUMMY_TILE, -1),
+        (
+            [DUMMY_AGENT, DUMMY_AGENT_WINNING_HAND, DUMMY_AGENT, DUMMY_AGENT],
+            Tile("B", "1"),
+            1,
+        ),
+        (
+            [
+                DUMMY_AGENT,
+                DUMMY_AGENT_WINNING_HAND,
+                DUMMY_AGENT_WINNING_HAND,
+                DUMMY_AGENT_WINNING_HAND,
+            ],
+            Tile("A", "7"),
+            0,
+        ),
+    ],
+)
+def test_any_wins(players, tile, expected):
+    assert any_wins(players, tile) == expected
 
 
 @pytest.mark.parametrize(

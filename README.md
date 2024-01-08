@@ -24,4 +24,4 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 
 ### Testing during development
 
-- `poetry run coverage run -m pytest; poetry run coverage report -m `
+- `poetry run coverage run -m pytest; poetry run coverage report -m`

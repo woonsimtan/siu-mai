@@ -71,7 +71,7 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
     return players
 
 
-def end_of_game_output(hands, discard, player):
+def end_of_game_output(hands, discard, player):  # pragma: no cover
     if discard == DUMMY_TILE:
         pass
         # print(f"Player {player} has won by pickup")

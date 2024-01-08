@@ -2,7 +2,9 @@
 
 This document contains the low-level design of the code files in the `V1` folder.
 
-## tiles.py
+## Game Set-up
+
+### tiles.py
 
 The `Tile` class is created to represent a single mahjong tile. It has the following properties:
 
@@ -39,11 +41,7 @@ The following functions are defined for a `TileList` -`sort` sorts tiles by suit
 - `copy` returns a new `TileList` with the same set of tiles
 - `check_for_win` takes a tile and examines if the list is a winning hand with the addition of this new tile.
 
-Note: `check_for_win` could do with additional testing.
-
-## base_game.py
-
-TODO: add functionality to save game data
+### base_game.py
 
 The following functions are defined to setup and run the game:
 
@@ -54,9 +52,30 @@ The following functions are defined to setup and run the game:
 - `setup_players` puts each player into the list, creating an agent for each specified type.
 - `main` runs gameplay.
 
-## random_agent.py
+## Agents
 
-The logic that the agent follows is as below:
+(Should consider implementing agent as an abstract class?)
+
+Each agent has to have the following properties defined:
+
+- `possible_discards`
+- `displayed_tiles`
+
+Each agent needs to have the following functions defined:
+
+- `pickup` adds a new tile to possible discards.
+- `all_tiles` returns all tiles that the agent holds.
+- `check_for_win` checks for a win using all the tiles that the agent holds.
+- `check_for_peng` checks if the agent can choose to carry out PENG given a tile.
+- `choose_peng` returns a boolean for whether the agent should PENG.
+- `peng` shifts the tiles for the move into the list of displayed tiles and removes them from possible discards.
+- `discard` selects a tile to discard.
+- `get_possible_discards` returns tiles that the agent can select their discards from.
+- `get_hidden_tiles` returns tiles that the agent has that are hidden from other players.
+
+### random_agent.py
+
+The logic that the semi-random agent follows is as below:
 
 - Tiles will be grouped into sets of three where possible (three of a kind or a sequence of the same suit).
 - A pair will be retained at first opportunity.
@@ -85,6 +104,6 @@ The following functions are defined for the agent:
 - `check_for_peng` checks if the agent can peng based on their hand.
 - `peng` shifts tiles into display, and removes them from possible discards.
 
-## mcts_node.py and mcts_agent.py
+### mcts_node.py and mcts_agent.py
 
 should have a node for peng/no peng and selecting discard tile
