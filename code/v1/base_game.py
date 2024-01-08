@@ -12,7 +12,7 @@ SUIT_VALUES = {
 
 
 def create_tiles(tiles=SUIT_VALUES) -> TileList:
-    all_tiles = TileList()
+    all_tiles = TileList([])
     # for every suit
     for key in tiles.keys():
         # for every value
@@ -52,7 +52,7 @@ def any_wins(players, discarded):
     except ValueError:
         p.print_all_tiles()
         raise ValueError(
-            f"Player {i} has invalid number of tiles: {p.possible_discards.size()}"
+            f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
         )
 
 
@@ -71,7 +71,7 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
     return players
 
 
-def end_of_game_output(hands, discard, player):
+def end_of_game_output(hands, discard, player):  # pragma: no cover
     if discard == DUMMY_TILE:
         pass
         # print(f"Player {player} has won by pickup")

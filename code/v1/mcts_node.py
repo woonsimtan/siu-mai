@@ -2,8 +2,6 @@ import numpy as np
 from collections import defaultdict
 from v1.tiles import TileList, Tile
 
-# from v1.base_game import any_peng, any_wins
-
 DUMMY_TILE = Tile("DUMMY", "TILE")
 
 
@@ -25,7 +23,7 @@ def any_wins(players, discarded):
     except ValueError:
         p.print_all_tiles()
         raise ValueError(
-            f"Player {i} has invalid number of tiles: {p.get_hidden_tiles().size()}"
+            f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
         )
 
 
@@ -139,7 +137,7 @@ class MonteCarloTreeSearchNode:
 
     def best_action(self):
         # print("best action")
-        simulation_no = 100
+        simulation_no = 1000
 
         for i in range(simulation_no):
             v = self._tree_policy()

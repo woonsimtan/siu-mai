@@ -13,4 +13,7 @@ This document covers high level design of the code files in this repository.
 
 - `base_game.py` contains main logic for the game to function.
 - `tiles.py` contains objects created for the base game to function.
-- `random_agent` contains an agent to play the base game and discards random tiles on each turn.
+- `random_agent` contains a completely random agent along with a semi-random agent, both of which randomly select tiles from a set of possible discards.
+- `mcts_node.py` contains logic for the MCTS agent to follow.
+- `mcts_agent.py` contains functions implemented for an agent using logic for MCTS to play the game.
+- `metrics.py` runs the base game for a determined number of times and saves game history to a csv file.

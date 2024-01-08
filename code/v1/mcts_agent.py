@@ -38,14 +38,6 @@ class MCTSAgent:
             self.player_number,
             self.player_number,
         )
-        #     state = {
-        #         "player_tiles": players,
-        #         "displayed_tiles": all_seen,
-        #         "hidden_tiles": deck.copy(),
-        #         "discarded_tile": last_discarded,
-        #         "current_player": self.player_number,
-        #         "maximising_player": self.player_number,
-        #     }
         return state
 
     def discard(self, players, discarded_tiles, deck, last_discarded):

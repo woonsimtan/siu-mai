@@ -18,6 +18,10 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 - `poetry install`
 - `poetry run base_game`
 
+### Initialising the game for each combination of agents
+
+- `poetry run metrics -n <number-of-games> -save <y/n>`
+
 ### Testing during development
 
-- `poetry run coverage run -m pytest; poetry run coverage report -m `
+- `poetry run coverage run -m pytest; poetry run coverage report -m`

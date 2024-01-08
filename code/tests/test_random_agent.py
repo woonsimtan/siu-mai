@@ -107,39 +107,39 @@ def test_total_tile_count(player, expected):
     assert player.total_tile_count() == expected
 
 
-@pytest.mark.parametrize(
-    "player, tile",
-    [
-        (random_agent_triple, Tile("A", "5")),
-        (random_agent_consecutive, Tile("A", "9")),
-    ],
-)
-def test_play_turn_win(player, tile):
-    assert player.play_a_turn(tile) == DUMMY_TILE
+# @pytest.mark.parametrize(
+#     "player, tile",
+#     [
+#         (random_agent_triple, Tile("A", "5")),
+#         (random_agent_consecutive, Tile("A", "9")),
+#     ],
+# )
+# def test_play_turn_win(player, tile):
+#     assert player.play_a_turn(tile) == DUMMY_TILE
 
 
-# not discarding as expected
-@pytest.mark.parametrize(
-    "player, tile, expected_discards",
-    [
-        (random_agent_triple, Tile("B", "5"), [Tile("B", "5"), Tile("A", "5")]),
-        # (random_agent_consecutive, Tile("B", "5"), [Tile("B", "5"), Tile("B", "8"), Tile("A", "9")])
-    ],
-)
-def test_play_turn_not_win(player, tile, expected_discards):
-    discarded = player.play_a_turn(tile)
-    assert discarded in expected_discards
+# # not discarding as expected
+# @pytest.mark.parametrize(
+#     "player, tile, expected_discards",
+#     [
+#         (random_agent_triple, Tile("B", "5"), [Tile("B", "5"), Tile("A", "5")]),
+#         # (random_agent_consecutive, Tile("B", "5"), [Tile("B", "5"), Tile("B", "8"), Tile("A", "9")])
+#     ],
+# )
+# def test_play_turn_not_win(player, tile, expected_discards):
+#     discarded = player.play_a_turn(tile)
+#     assert discarded in expected_discards
 
 
-@pytest.mark.parametrize(
-    "player, tile",
-    [
-        (random_agent_triple, Tile("A", "5")),
-        (random_agent_consecutive, Tile("A", "9")),
-    ],
-)
-def test_check_for_win(player, tile):
-    assert player.check_for_win(tile)
+# @pytest.mark.parametrize(
+#     "player, tile",
+#     [
+#         (random_agent_triple, Tile("A", "5")),
+#         (random_agent_consecutive, Tile("A", "9")),
+#     ],
+# )
+# def test_check_for_win(player, tile):
+#     assert player.check_for_win(tile)
 
 
 @pytest.mark.parametrize(

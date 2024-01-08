@@ -93,6 +93,16 @@ DUMMY_AGENT_WINNING_HAND = SemiRandomAgent(
             Tile("B", "1"),
             1,
         ),
+        (
+            [
+                DUMMY_AGENT,
+                DUMMY_AGENT_WINNING_HAND,
+                DUMMY_AGENT_WINNING_HAND,
+                DUMMY_AGENT_WINNING_HAND,
+            ],
+            Tile("A", "7"),
+            0,
+        ),
     ],
 )
 def test_any_wins(players, tile, expected):

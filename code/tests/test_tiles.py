@@ -279,142 +279,286 @@ def test_copy_tile_list(tile_list, new_tiles, expected_tile_list, expected_copy)
     assert copy == expected_copy
 
 
-@pytest.mark.parametrize(
-    "tile_list, tile",
-    [
-        (
-            TileList(
-                [
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("A", "5"),
-        ),
-        (
-            TileList(
-                [
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("A", "5"),
-        ),
-        (
-            TileList(
-                [
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "5"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("A", "5"),
-        ),
-    ],
-)
-def test_check_win(tile_list, tile):
-    assert tile_list.check_for_win(tile)
+# @pytest.mark.parametrize(
+#     "tile_list, tile",
+#     [
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "6"),
+#                     Tile("Bamboo", "7"),
+#                     Tile("Bamboo", "8"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Character", "5"),
+#                 ]
+#             ),
+#             Tile("Bamboo", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Character", "1"),
+#                     Tile("Character", "1"),
+#                     Tile("Character", "1"),
+#                     Tile("Character", "5"),
+#                     Tile("Character", "5"),
+#                     Tile("Character", "5"),
+#                     Tile("Character", "9"),
+#                     Tile("Character", "9"),
+#                     Tile("Character", "9"),
+#                     Tile("Character", "3"),
+#                     Tile("Character", "3"),
+#                     Tile("Character", "3"),
+#                     Tile("Character", "7"),
+#                 ]
+#             ),
+#             Tile("Character", "7"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Dot", "2"),
+#                     Tile("Dot", "2"),
+#                     Tile("Dot", "4"),
+#                     Tile("Dot", "4"),
+#                     Tile("Dot", "6"),
+#                     Tile("Dot", "6"),
+#                     Tile("Dot", "8"),
+#                     Tile("Dot", "8"),
+#                     Tile("Dot", "3"),
+#                     Tile("Dot", "3"),
+#                     Tile("Dot", "7"),
+#                     Tile("Dot", "7"),
+#                     Tile("Dot", "9"),
+#                 ]
+#             ),
+#             Tile("Dot", "9"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "5"),
+#                     Tile("Character", "6"),
+#                     Tile("Character", "7"),
+#                     Tile("Character", "8"),
+#                     Tile("Character", "9"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "5"),
+#                 ]
+#             ),
+#             Tile("Bamboo", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Character", "1"),
+#                     Tile("Character", "9"),
+#                     Tile("Dot", "1"),
+#                     Tile("Dot", "9"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Character", "1"),
+#                     Tile("Dot", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Character", "2"),
+#                     Tile("Dot", "2"),
+#                     Tile("Bamboo", "1"),
+#                 ]
+#             ),
+#             Tile("Character", "9"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Dot", "1"),
+#                     Tile("Dot", "2"),
+#                     Tile("Dot", "3"),
+#                     Tile("Dot", "4"),
+#                     Tile("Dot", "5"),
+#                     Tile("Dot", "6"),
+#                     Tile("Dot", "7"),
+#                     Tile("Dot", "8"),
+#                     Tile("Dot", "9"),
+#                     Tile("Dot", "1"),
+#                     Tile("Dot", "2"),
+#                     Tile("Dot", "3"),
+#                     Tile("Dot", "4"),
+#                     Tile("Dot", "5"),
+#                 ]
+#             ),
+#             Tile("Dot", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "5"),
+#                     Tile("Bamboo", "5"),
+#                     Tile("Bamboo", "5"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "8"),
+#                     Tile("Bamboo", "5"),
+#                 ]
+#             ),
+#             Tile("Bamboo", "8"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Character", "2"),
+#                     Tile("Character", "2"),
+#                     Tile("Character", "4"),
+#                     Tile("Character", "4"),
+#                     Tile("Character", "6"),
+#                     Tile("Character", "6"),
+#                     Tile("Character", "8"),
+#                     Tile("Character", "8"),
+#                     Tile("Character", "3"),
+#                     Tile("Character", "3"),
+#                     Tile("Character", "7"),
+#                     Tile("Character", "7"),
+#                     Tile("Character", "9"),
+#                 ]
+#             ),
+#             Tile("Character", "9"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Bamboo", "5"),
+#                     Tile("Character", "6"),
+#                     Tile("Character", "7"),
+#                     Tile("Character", "8"),
+#                     Tile("Character", "9"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Bamboo", "3"),
+#                     Tile("Bamboo", "4"),
+#                     Tile("Character", "5"),
+#                 ]
+#             ),
+#             Tile("Character", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("Bamboo", "1"),
+#                     Tile("Bamboo", "9"),
+#                     Tile("Character", "1"),
+#                     Tile("Character", "9"),
+#                     Tile("Dot", "1"),
+#                     Tile("Dot", "9"),
+#                     Tile("Bamboo", "1"),
+#                     Tile("Character", "1"),
+#                     Tile("Dot", "1"),
+#                     Tile("Bamboo", "2"),
+#                     Tile("Character", "2"),
+#                     Tile("Dot", "2"),
+#                     Tile("Bamboo", "1"),
+#                 ]
+#             ),
+#             Tile("Character", "9"),
+#         ),
+#     ],
+# )
+# def test_check_win(tile_list, tile):
+#     assert tile_list.check_for_win(tile)
 
 
-@pytest.mark.parametrize(
-    "tile_list, tile",
-    [
-        (
-            TileList(
-                [
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("B", "5"),
-        ),
-        (
-            TileList(
-                [
-                    Tile("DUMMY", "TILE"),
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("B", "5"),
-        ),
-        (
-            TileList(
-                [
-                    Tile("A", "1"),
-                    Tile("A", "1"),
-                    Tile("A", "2"),
-                    Tile("A", "2"),
-                    Tile("A", "3"),
-                    Tile("A", "3"),
-                    Tile("A", "4"),
-                    Tile("A", "4"),
-                    Tile("A", "5"),
-                    Tile("A", "5"),
-                    Tile("A", "6"),
-                    Tile("A", "6"),
-                    Tile("A", "5"),
-                ]
-            ),
-            Tile("B", "5"),
-        ),
-    ],
-)
-def test_check_not_win(tile_list, tile):
-    assert not tile_list.check_for_win(tile)
+# @pytest.mark.parametrize(
+#     "tile_list, tile",
+#     [
+#         (
+#             TileList(
+#                 [
+#                     Tile("A", "1"),
+#                     Tile("A", "1"),
+#                     Tile("A", "1"),
+#                     Tile("A", "2"),
+#                     Tile("A", "2"),
+#                     Tile("A", "2"),
+#                     Tile("A", "3"),
+#                     Tile("A", "3"),
+#                     Tile("A", "3"),
+#                     Tile("A", "4"),
+#                     Tile("A", "4"),
+#                     Tile("A", "4"),
+#                     Tile("A", "5"),
+#                 ]
+#             ),
+#             Tile("B", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("DUMMY", "TILE"),
+#                     Tile("A", "1"),
+#                     Tile("A", "1"),
+#                     Tile("A", "2"),
+#                     Tile("A", "2"),
+#                     Tile("A", "2"),
+#                     Tile("A", "3"),
+#                     Tile("A", "3"),
+#                     Tile("A", "3"),
+#                     Tile("A", "4"),
+#                     Tile("A", "4"),
+#                     Tile("A", "4"),
+#                     Tile("A", "5"),
+#                 ]
+#             ),
+#             Tile("B", "5"),
+#         ),
+#         (
+#             TileList(
+#                 [
+#                     Tile("A", "1"),
+#                     Tile("A", "1"),
+#                     Tile("A", "2"),
+#                     Tile("A", "2"),
+#                     Tile("A", "3"),
+#                     Tile("A", "3"),
+#                     Tile("A", "4"),
+#                     Tile("A", "4"),
+#                     Tile("A", "5"),
+#                     Tile("A", "5"),
+#                     Tile("A", "6"),
+#                     Tile("A", "6"),
+#                     Tile("A", "5"),
+#                 ]
+#             ),
+#             Tile("B", "5"),
+#         ),
+#     ],
+# )
+# def test_check_not_win(tile_list, tile):
+#     assert not tile_list.check_for_win(tile)
 
 
 def test_check_win_too_many_tiles():

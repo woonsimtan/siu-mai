@@ -72,7 +72,7 @@ def parse_arguments():
         help="If data should be saved to csv (y/n)",
         type=str,
         required=False,
-        default="y",
+        default="n",
     )
     return parser.parse_args()
 
@@ -85,6 +85,7 @@ def main():
     args = parse_arguments()
 
     n = args.n
+    save = args.save == "y"
     player_types = generate_player_combinations()
 
     k = len(game_hist)
@@ -98,13 +99,14 @@ def main():
                 game_n = len(game_hist)
                 game_hist.loc[game_n] = [game_n, winning_player] + p
 
-                if args.save == "y":
+                if save:
                     # save data to files
                     game_hist.to_csv(
                         os.getcwd() + "\\" + "v1\game_history.csv", index=False
                     )
             except Exception as e:
                 print(e)
+                print(p)
                 failed_games += 1
                 continue
 

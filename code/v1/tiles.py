@@ -115,76 +115,64 @@ class TileList:
         return TileList(self.tiles.copy())
 
     def check_for_win(self, tile=None):
-        # while DUMMY_TILE in self.tiles:
-        #     self.remove(DUMMY_TILE)
-
-        # if self.size() > 14:
-        #     raise ValueError("Invalid number of tiles.")
-
-        # copy = self.tiles.copy()
-        # if tile is not None:
-        #     copy.add(tile)
-        # copy.sort()
-
-        # counts = copy.tile_counts()
-        # pairs = [
-        #     Tile(tile_str[:-1], tile_str[-1])
-        #     for tile_str in counts.keys()
-        #     if counts[tile_str] >= 2
-        # ]
-
-        # for pair in pairs:
-        #     trial = copy.copy()
-        #     trial.remove_tiles(TileList([pair] * 2))
-
-        #     hands = []
-
-        #     t = trial.tiles[0]
-
-        if tile == DUMMY_TILE:
-            return False
-        # ensure no dummy tiles
-        while DUMMY_TILE in self.tiles:
-            self.remove(DUMMY_TILE)
-
-        # check for valid number of tiles - can't have more than 14 tiles
-        if self.size() > 14:
-            raise ValueError("Invalid number of tiles.")
-
         copy = self.copy()
         if tile is not None:
-            copy.add(tile)
+            if copy.size() == 13:
+                copy.add(tile)
+
+        while DUMMY_TILE in copy.tiles:
+            copy.remove(DUMMY_TILE)
+
+        if copy.size() > 14:
+            print(copy.size())
+            copy.print()
+            print(self.size())
+            # self.print()
+            raise ValueError(f"Invalid number of tiles: {copy.size()}")
+
         copy.sort()
+        counts = copy.tile_counts()
 
-        takeout_pair = copy.size() % 3 == 2
-        if takeout_pair:
-            counts = copy.tile_counts()
-            pairs = [
-                Tile(tile_str[:-1], tile_str[-1])
-                for tile_str in counts.keys()
-                if counts[tile_str] >= 2
-            ]
-        else:
-            pairs = ["dummy"]
+        pairs = 0
+        for c in counts.values():
+            if c == 2:
+                pairs += 1
+        if pairs == 7:
+            return True
 
-        for pair in pairs:
-            test = copy.copy()
-            if takeout_pair:
-                test.remove_tiles(TileList([pair, pair]))
+        def bt(counts, got_pair):
+            # print(counts, got_pair)
+            total = sum(counts.values())
+            # print(total)
+            if total == 0:
+                return got_pair
 
-            while test.size() > 0:
-                t = test.tiles[0]
+            for t in counts.keys():
+                if counts[t] >= 3:
+                    counts[t] -= 3
+                    if bt(counts, got_pair):
+                        return True
+                    counts[t] += 3
 
-                if test.count(t) < 3:
-                    t2 = Tile(t.suit_type, str(int(t.value) + 1))
-                    t3 = Tile(t.suit_type, str(int(t.value) + 2))
-                    if test.contains(t2) and test.contains(t3):
-                        test.remove_tiles(TileList([t, t2, t3]))
-                    else:
-                        break
-                elif test.count(t) >= 3:
-                    test.remove_tiles(TileList([t, t, t]))
+                if counts[t] == 2 and not got_pair:
+                    counts[t] -= 2
+                    if bt(counts, True):
+                        return True
+                    counts[t] += 2
 
-            if test.size() == 0:
-                return True
-        return False
+                if counts[t] > 0:
+                    t2 = t[:-1] + str(int(t[-1]) + 1)
+                    t3 = t[:-1] + str(int(t[-1]) + 2)
+                    if t2 in counts.keys() and t3 in counts.keys():
+                        if counts[t2] >= 1 and counts[t3] >= 1:
+                            counts[t] -= 1
+                            counts[t2] -= 1
+                            counts[t3] -= 1
+                            if bt(counts, got_pair):
+                                return True
+                            counts[t] += 1
+                            counts[t2] += 1
+                            counts[t3] += 1
+            return False
+
+        return bt(counts, False)
