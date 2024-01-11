@@ -3,7 +3,8 @@ from v1.tiles import *
 # from v1.random_agent import *
 from v1.players import *
 import pandas as pd
-from v1.mcts_agent import *
+
+# from v1.mcts_agent import *
 
 # fixed values
 SUIT_VALUES = {
@@ -36,9 +37,6 @@ def distribute_tiles(to_distribute):
     return [TileList(tiles) for tiles in player_tiles]
 
 
-# shift to players
-
-
 def setup_players(player_type_list, tiles):  # pragma: no cover
     players = []
     for i in range(4):
@@ -46,7 +44,7 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
             player = RandomAgent(tiles[i])
             players.append(player)
         elif player_type_list[i] == "MCTS":
-            player = MCTSAgent(tiles[i], i)
+            player = MCTSAgent(tiles[i])
             players.append(player)
         elif player_type_list[i] == "SEMIRANDOM":
             player = SemiRandomAgent(tiles[i])
@@ -61,7 +59,7 @@ def end_of_game_output(hands, discard, player):  # pragma: no cover
         hands[player].all_tiles().print()
     elif any_wins(hands, discard) != -1:
         player = any_wins(hands, discard)
-        hands[player].possible_discards.add(discard)
+        hands[player]._possible_discards.add(discard)
         print(f"Player {player} has won from a discarded tile")
         hands[player].all_tiles().print()
     else:
@@ -86,17 +84,19 @@ def main(player_types):  # pragma: no cover
     # gameplay
     while any_wins(all_players, last_discarded) == -1 and deck.size() > 0:
         # check for players that can peng
-        peng = any_peng(all_players, last_discarded)
+        can_peng = any_peng((player_number + 3) % 4, all_players, last_discarded) != -1
+        chose_peng = False
         # if can peng
-        if peng != -1:
-            player = all_players[peng]
+        if can_peng:
+            peng_player = any_peng((player_number + 3) % 4, all_players, last_discarded)
+            player = all_players[peng_player]
             chose_peng = player.choose_peng()
             if chose_peng:
-                player_number = peng
+                player_number = peng_player
                 player.peng(last_discarded)
 
         # pickup
-        if peng == -1 or not chose_peng:
+        if not can_peng or not chose_peng:
             discarded_tiles.add(last_discarded)
             player = all_players[player_number]
             new_tile = deck.remove_random_tile()
@@ -106,17 +106,13 @@ def main(player_types):  # pragma: no cover
                 player.pickup(new_tile)
 
         # discard
-        last_discarded = all_players[player_number].discard(
-            all_players, discarded_tiles, deck, last_discarded
-        )
+        last_discarded = all_players[player_number].discard()
 
         turn += 1
 
         # if anyone has won from pickup
         if last_discarded == DUMMY_TILE:
             break
-
-        # print(f"Player {player_number} has finished a turn.")
 
         # next player
         player_number = (player_number + 1) % 4
@@ -126,5 +122,5 @@ def main(player_types):  # pragma: no cover
 
 
 def review():
-    agents = ["MCTS", "RANDOM", "RANDOM", "RANDOM"]
+    agents = ["RANDOM", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents)

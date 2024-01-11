@@ -3,11 +3,12 @@ import random
 from v1.tiles import *
 
 
-def any_peng(players, discarded):
+def any_peng(player_number, players, discarded):
     for i in range(4):
         p = players[i]
         if p.check_for_peng(discarded):
-            return i
+            if player_number != i:
+                return i
     return -1
 
 
@@ -19,7 +20,7 @@ def any_wins(players, discarded):
                 return i
         return -1
     except ValueError:
-        p.print_all_tiles()
+        p.all_tiles().print()
         raise ValueError(
             f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
         )
@@ -32,7 +33,7 @@ class Player(ABC):
 
     @property
     def displayed_tiles(self):
-        return self._displayed_tiles
+        return self._displayed_tiles.copy()
 
     @displayed_tiles.setter
     def displayed_tiles(self, value):
@@ -40,7 +41,7 @@ class Player(ABC):
 
     @property
     def possible_discards(self):
-        return self._possible_discards
+        return self._possible_discards.copy()
 
     @possible_discards.setter
     def possible_discards(self, value):
@@ -50,8 +51,8 @@ class Player(ABC):
         self._possible_discards.add(tile)
 
     def all_tiles(self):
-        complete_hand = self._possible_discards.copy()
-        complete_hand.add_tiles(self._displayed_tiles)
+        complete_hand = self.possible_discards
+        complete_hand.add_tiles(self.displayed_tiles)
         return complete_hand
 
     def check_for_win(self, tile=None):
@@ -70,11 +71,11 @@ class Player(ABC):
         self._displayed_tiles.add_tiles(l)
         self._possible_discards.remove_tiles(l)
 
-    def discard(self, players, prev_discarded, rem_deck, last_discarded_tile):
-        return self.possible_discards.remove_random_tile()
+    def discard(self, game_state=None):
+        return self._possible_discards.remove_random_tile()
 
     def get_hidden_tiles(self):
-        return self._possible_discards
+        return self.possible_discards
 
     def total_tile_count(self):
         return self.all_tiles().size()
@@ -86,22 +87,17 @@ class RandomAgent(Player):
 
 class SemiRandomAgent(Player):
     def __init__(self, possible_discards):
-        super().__init__()
+        super().__init__(possible_discards)
         self._pair = TileList([])
         self._locked_tiles = TileList([])
 
     @property
     def pair(self):
-        return self._pair
+        return self._pair.copy()
 
     @property
     def locked_tiles(self):
-        return self._locked_tiles
-
-    def discard(self, players, prev_discarded, rem_deck, last_discarded_tile):
-        # Implement the discard method. For example, discard a random tile:
-        if self._possible_discards:
-            return self._possible_discards.remove_random_tile()
+        return self._locked_tiles.copy()
 
     def all_tiles(self):
         combined = self.get_hidden_tiles()
@@ -116,7 +112,7 @@ class SemiRandomAgent(Player):
         return hidden
 
     def pickup(self, tile):
-        self.possible_discards.add(tile)
+        self._possible_discards.add(tile)
         self.lock_triples()
         self.lock_pair()
 
@@ -129,19 +125,21 @@ class SemiRandomAgent(Player):
         ]
         for triple in triples:
             l = TileList([triple for i in range(3)])
-            self.locked_tiles.add_tiles(l)
-            self.possible_discards.remove_tiles(l)
+            self._locked_tiles.add_tiles(l)
+            self._possible_discards.remove_tiles(l)
 
     def lock_three_consecutive(self):
-        self.possible_discards.sort()
+        self._possible_discards.sort()
         for tile in self.possible_discards.tiles:
             second = Tile(tile.suit_type, str(int(tile.value) + 1))
             third = Tile(tile.suit_type, str(int(tile.value) + 2))
-            if self.possible_discards.contains(
-                second
-            ) and self.possible_discards.contains(third):
-                self.possible_discards.remove_tiles(TileList([tile, second, third]))
-                self.locked_tiles.add_tiles(TileList([tile, second, third]))
+            if (
+                self.possible_discards.contains(tile)
+                and self.possible_discards.contains(second)
+                and self.possible_discards.contains(third)
+            ):
+                self._possible_discards.remove_tiles(TileList([tile, second, third]))
+                self._locked_tiles.add_tiles(TileList([tile, second, third]))
 
     def lock_triples(self):
         self.lock_three_of_a_kind()
@@ -158,11 +156,14 @@ class SemiRandomAgent(Player):
             if len(pairs) > 0:
                 pair_index = random.randint(0, len(pairs) - 1)
                 pair_tile = pairs[pair_index]
-                self.pair.add_tiles(TileList([pair_tile, pair_tile]))
-                self.possible_discards.remove_tiles(TileList([pair_tile, pair_tile]))
+                self._pair.add_tiles(TileList([pair_tile, pair_tile]))
+                self._possible_discards.remove_tiles(TileList([pair_tile, pair_tile]))
 
 
 class MCTSAgent(Player):
     def __init__(self, possible_discards, player_number):
-        super().__init__()
+        super().__init__(possible_discards)
         self.player_number = player_number
+
+    def discard(self, game_state):
+        pass
