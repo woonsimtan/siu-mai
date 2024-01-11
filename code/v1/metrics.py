@@ -9,7 +9,7 @@ import argparse
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-POSSIBLE_AGENTS = ["RANDOM", "MCTS", "SEMIRANDOM"]
+POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"]  # , "MCTS"]
 
 
 def add_to_wins(row):

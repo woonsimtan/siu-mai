@@ -90,23 +90,6 @@ class MonteCarloTreeSearchNode:
 
         return self.best_child(c_param=0.0)
 
-    # class GameState:
-    #     def __init__(
-    #         self,
-    #         players,
-    #         discarded_tiles,
-    #         deck,
-    #         last_discarded,
-    #         player_number,
-    #         current_player,
-    #     ):
-    #         self.players = players
-    #         self.discarded_tiles = discarded_tiles
-    #         self.deck = deck
-    #         self.last_discarded = last_discarded
-    #         self.player_number = player_number
-    #         self.current_player = current_player
-
     def get_legal_actions(self):
         """
         Modify according to your game or

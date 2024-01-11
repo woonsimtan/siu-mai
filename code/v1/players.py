@@ -3,29 +3,6 @@ import random
 from v1.tiles import *
 
 
-def any_peng(player_number, players, discarded):
-    for i in range(4):
-        p = players[i]
-        if p.check_for_peng(discarded):
-            if player_number != i:
-                return i
-    return -1
-
-
-def any_wins(players, discarded):
-    try:
-        for i in range(4):
-            p = players[i]
-            if p.check_for_win(discarded):
-                return i
-        return -1
-    except ValueError:
-        p.all_tiles().print()
-        raise ValueError(
-            f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
-        )
-
-
 class Player(ABC):
     def __init__(self, possible_discards):
         self._displayed_tiles = TileList([])

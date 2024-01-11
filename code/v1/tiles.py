@@ -24,6 +24,12 @@ class Tile:
         else:
             return False
 
+    def print(self):
+        print(self.to_string())
+
+    def copy(self):
+        return Tile(self.suit_type, self.value)
+
 
 DUMMY_TILE = Tile("DUMMY", "TILE")
 
