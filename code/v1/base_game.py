@@ -1,5 +1,7 @@
 from v1.tiles import *
-from v1.random_agent import *
+
+# from v1.random_agent import *
+from v1.players import *
 import pandas as pd
 from v1.mcts_agent import *
 
@@ -34,26 +36,7 @@ def distribute_tiles(to_distribute):
     return [TileList(tiles) for tiles in player_tiles]
 
 
-def any_peng(players, discarded):
-    for i in range(4):
-        p = players[i]
-        if p.check_for_peng(discarded):
-            return i
-    return -1
-
-
-def any_wins(players, discarded):
-    try:
-        for i in range(4):
-            p = players[i]
-            if p.check_for_win(discarded):
-                return i
-        return -1
-    except ValueError:
-        p.print_all_tiles()
-        raise ValueError(
-            f"Player {i} has invalid number of tiles: {p.all_tiles().size()}"
-        )
+# shift to players
 
 
 def setup_players(player_type_list, tiles):  # pragma: no cover
@@ -73,18 +56,18 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
 
 def end_of_game_output(hands, discard, player):  # pragma: no cover
     if discard == DUMMY_TILE:
-        pass
-        # print(f"Player {player} has won by pickup")
-        # hands[player].print_all_tiles()
+        # pass
+        print(f"Player {player} has won by pickup")
+        hands[player].all_tiles().print()
     elif any_wins(hands, discard) != -1:
         player = any_wins(hands, discard)
         hands[player].possible_discards.add(discard)
-        # print(f"Player {player} has won from a discarded tile")
-        # hands[player].print_all_tiles()
+        print(f"Player {player} has won from a discarded tile")
+        hands[player].all_tiles().print()
     else:
         player = float("NaN")
-        # print("No winner")
-    # print("GAME ENDED")
+        print("No winner")
+    print("GAME ENDED")
     return player
 
 
@@ -140,3 +123,8 @@ def main(player_types):  # pragma: no cover
 
     # end of game output
     return end_of_game_output(all_players, last_discarded, player_number)
+
+
+def review():
+    agents = ["MCTS", "RANDOM", "RANDOM", "RANDOM"]
+    main(agents)

@@ -23,7 +23,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 base_game = "v1.base_game:main"
 metrics = "v1.metrics:main"
-ignore = "v1.ignore:main"
+review = "v1.base_game:review"
 
 [tool.pytest.ini_options]
 pythonpath = "v1"
