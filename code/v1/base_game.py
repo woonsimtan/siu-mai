@@ -108,9 +108,10 @@ def main(player_types, print_output=False):
 
     # gameplay
     while not state.ended():
-        action = state.get_next_action()
-        print(action)
-        state = state.next_game_state(action)
+        # action = state.get_next_action()
+        # print(action)
+        state.print()
+        state = state.next_game_state()
 
         # state.print()
 
@@ -171,5 +172,5 @@ def main(player_types, print_output=False):
 
 
 def review():
-    agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
+    agents = ["RANDOM", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents, True)

@@ -148,7 +148,6 @@ class MCTSAgent(Player):
 
     def discard(self, game_state):
         # create state for mcts
-
         root = MonteCarloTreeSearchNode(game_state)
         selected_node = root.best_action()
         return selected_node.parent_action[1]

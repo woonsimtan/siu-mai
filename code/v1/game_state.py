@@ -70,22 +70,20 @@ class GameState:
                 actions.append(["DISCARD", tile])
         else:
             if self.any_peng() != -1:
-                actions.append(["PENG"])
+                actions.append(["PENG"])  # and "PASS"
             actions.append(["PICKUP"])
 
         return actions
 
-    def get_next_action(self):
-        if self._players[self._current_player_number].all_tiles().size() == 14:
-            return ["DISCARD"]
-        # check for peng
-        peng_player = self.any_peng()
-        if peng_player != -1:
-            p = self._players[peng_player]
-            if p.choose_peng():
-                return ["PENG"]
-        # else next player picks up
-        return ["PICKUP"]
+    # def get_next_action(self):
+    #     # check for peng
+    #     peng_player = self.any_peng()
+    #     if peng_player != -1:
+    #         p = self._players[peng_player]
+    #         if p.choose_peng():
+    #             return "PENG"
+    #     # else next player picks up
+    #     return "PICKUP"
 
     def get_tiles_hidden_from_player(self):
         """
@@ -97,7 +95,7 @@ class GameState:
                 hidden_tiles.add_tiles(self._players.get_hidden_tiles())
         return hidden_tiles
 
-    def next_game_state(self, action):
+    def next_game_state(self):
         """
         Returns a new game state after the action has been taken
         """
@@ -108,27 +106,33 @@ class GameState:
         last_discarded = self._last_discarded.copy()
         current_player_number = self._current_player_number
         game_end = False
+        choose_peng = False
 
         # carry out actions
-        if action[0] == "PENG":
+        if self.any_peng() != -1:
+            choose_peng = players[self.any_peng()].choose_peng()
+        if choose_peng:
+            print("PENG")
             current_player_number = self.any_peng()
             players[current_player_number].peng(last_discarded)
-        elif action[0] == "PICKUP":
+
+        if not choose_peng:
+            print("PICKUP")
+            discarded_tiles.add(last_discarded)
             current_player_number = (current_player_number + 1) % 4
             players[current_player_number].pickup(deck.remove_random_tile())
             # check for win
             if players[current_player_number].check_for_win():
                 last_discarded = DUMMY_TILE
                 game_end = True
-        elif action[0] == "DISCARD":
-            if len(action) > 1:
-                players[current_player_number].possible_discards.remove(action[1])
-                last_discarded = action[1]
-            elif players[current_player_number].is_mcts():
+
+        # discard
+        if not game_end:
+            print("DISCARD")
+            if players[current_player_number].is_mcts():
                 last_discarded = players[current_player_number].discard(self)
             else:
                 last_discarded = players[current_player_number].discard()
-            discarded_tiles.add(last_discarded)
 
         # return new game state
         return GameState(

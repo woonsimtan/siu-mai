@@ -44,12 +44,13 @@ class MonteCarloTreeSearchNode:
 
     def rollout(self):
         current_rollout_state = self.state
-
+        print("rollout")
         while not current_rollout_state.ended():
             possible_moves = current_rollout_state.get_legal_actions()
 
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.next_game_state(action)
+        print("rollout ended")
         return current_rollout_state.game_result()
 
     def backpropagate(self, result):
@@ -91,33 +92,39 @@ class MonteCarloTreeSearchNode:
 
         return self.best_child(c_param=0.0)
 
-    # def get_legal_actions(self):
-    #     """
-    #     Modify according to your game or
-    #     needs. Constructs a list of all
-    #     possible states from current state.
-    #     Returns a list.
-    #     """
-    #     actions = []
-    #     p = self.state._current_player_number
-    #     if self.state._players[p].get_hidden_tiles().size() % 3 == 2:
-    #         for tile in self.state._players[p].get_hidden_tiles().tiles:
-    #             actions.append(["DISCARD", tile])
-    #     else:
-    #         if self.state.any_peng() != -1:
-    #             actions.append(["PENG"])
-    #         actions.append(["PICKUP"])
 
-    #     return actions
+class MCTSState:
+    def __init__(self, game_state):
+        self._players = game_state._players
+        self._deck = game_state._deck
 
-    # def is_game_over(self):
-    #     """
-    #     Modify according to your game or
-    #     needs. It is the game over condition
-    #     and depends on your game. Returns
-    #     true or false
-    #     """
-    #     return self.state.ended()
+    def get_legal_actions(self):
+        """
+        Modify according to your game or
+        needs. Constructs a list of all
+        possible states from current state.
+        Returns a list.
+        """
+        actions = []
+        p = self.state._current_player_number
+        if self.state._players[p].get_hidden_tiles().size() % 3 == 2:
+            for tile in self.state._players[p].get_hidden_tiles().tiles:
+                actions.append(["DISCARD", tile])
+        else:
+            if self.state.any_peng() != -1:
+                actions.append(["PENG"])
+            actions.append(["PICKUP"])
+
+        return actions
+
+    def is_game_over(self):
+        """
+        Modify according to your game or
+        needs. It is the game over condition
+        and depends on your game. Returns
+        true or false
+        """
+        return self.state.ended()
 
     def game_result(self):
         """
@@ -150,7 +157,7 @@ class MonteCarloTreeSearchNode:
         return self.state.next_game_state(action)
 
 
-def main():
-    root = MonteCarloTreeSearchNode(state, None, action)
-    selected_node = root.best_action()
-    return selected_node.parent_action[1]
+# def main():
+#     root = MonteCarloTreeSearchNode(state, None, action)
+#     selected_node = root.best_action()
+#     return selected_node.parent_action[1]
