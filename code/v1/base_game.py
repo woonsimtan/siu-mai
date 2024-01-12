@@ -45,7 +45,7 @@ def setup_players(player_type_list, tiles):  # pragma: no cover
             player = RandomAgent(tiles[i])
             players.append(player)
         elif player_type_list[i] == "MCTS":
-            player = MCTSAgent(tiles[i])
+            player = MCTSAgent(tiles[i], i)
             players.append(player)
         elif player_type_list[i] == "SEMIRANDOM":
             player = SemiRandomAgent(tiles[i])
@@ -109,7 +109,8 @@ def main(player_types, print_output=False):
     # gameplay
     while not state.ended():
         action = state.get_next_action()
-        state = state.update_game_state(action)
+        print(action)
+        state = state.next_game_state(action)
 
         # state.print()
 
@@ -170,5 +171,5 @@ def main(player_types, print_output=False):
 
 
 def review():
-    agents = ["SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
+    agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents, True)

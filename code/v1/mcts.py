@@ -14,7 +14,7 @@ class MonteCarloTreeSearchNode:
         self._results[-1] = 0
         self._untried_actions = None
         self._untried_actions = self.untried_actions()
-        self.maximising_player = state.current_player
+        self.maximising_player = state._current_player_number
         return
 
     def untried_actions(self):
@@ -31,7 +31,7 @@ class MonteCarloTreeSearchNode:
 
     def expand(self):
         action = self._untried_actions.pop()
-        next_state = self.state.move(action)
+        next_state = self.move(action)
         child_node = MonteCarloTreeSearchNode(
             next_state, parent=self, parent_action=action
         )
@@ -40,16 +40,16 @@ class MonteCarloTreeSearchNode:
         return child_node
 
     def is_terminal_node(self):
-        return self.state.is_game_over()
+        return self.state.ended()
 
     def rollout(self):
         current_rollout_state = self.state
 
-        while not current_rollout_state.is_game_over():
+        while not current_rollout_state.ended():
             possible_moves = current_rollout_state.get_legal_actions()
 
             action = self.rollout_policy(possible_moves)
-            current_rollout_state = current_rollout_state.move(action)
+            current_rollout_state = current_rollout_state.next_game_state(action)
         return current_rollout_state.game_result()
 
     def backpropagate(self, result):
@@ -81,34 +81,43 @@ class MonteCarloTreeSearchNode:
         return current_node
 
     def best_action(self):
-        simulation_no = 100
+        simulation_no = 10
 
         for i in range(simulation_no):
+            print(i)
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
 
         return self.best_child(c_param=0.0)
 
-    def get_legal_actions(self):
-        """
-        Modify according to your game or
-        needs. Constructs a list of all
-        possible states from current state.
-        Returns a list.
-        """
-        actions = []
-        # TODO: Implement
-        return actions
+    # def get_legal_actions(self):
+    #     """
+    #     Modify according to your game or
+    #     needs. Constructs a list of all
+    #     possible states from current state.
+    #     Returns a list.
+    #     """
+    #     actions = []
+    #     p = self.state._current_player_number
+    #     if self.state._players[p].get_hidden_tiles().size() % 3 == 2:
+    #         for tile in self.state._players[p].get_hidden_tiles().tiles:
+    #             actions.append(["DISCARD", tile])
+    #     else:
+    #         if self.state.any_peng() != -1:
+    #             actions.append(["PENG"])
+    #         actions.append(["PICKUP"])
 
-    def is_game_over(self):
-        """
-        Modify according to your game or
-        needs. It is the game over condition
-        and depends on your game. Returns
-        true or false
-        """
-        pass
+    #     return actions
+
+    # def is_game_over(self):
+    #     """
+    #     Modify according to your game or
+    #     needs. It is the game over condition
+    #     and depends on your game. Returns
+    #     true or false
+    #     """
+    #     return self.state.ended()
 
     def game_result(self):
         """
@@ -117,7 +126,12 @@ class MonteCarloTreeSearchNode:
         on your state corresponding to win,
         tie or a loss.
         """
-        pass
+        if self.state.check_for_win() == self.maximising_player:
+            return 1
+        elif self.state.check_for_win() == -1:
+            return 0
+        else:
+            return -1
 
     def move(self, action):
         """
@@ -133,7 +147,7 @@ class MonteCarloTreeSearchNode:
         represents that x is placed. Returns
         the new state after making a move.
         """
-        pass
+        return self.state.next_game_state(action)
 
 
 def main():

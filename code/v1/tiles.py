@@ -118,7 +118,8 @@ class TileList:
         return x
 
     def copy(self):
-        return TileList(self.tiles.copy())
+        tiles = self.tiles.copy()
+        return TileList(tiles)
 
     def check_for_win(self, tile=None):
         copy = self.copy()

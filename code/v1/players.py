@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import random
 from v1.tiles import *
+from v1.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
@@ -56,6 +57,9 @@ class Player(ABC):
 
     def total_tile_count(self):
         return self.all_tiles().size()
+
+    def is_mcts(self):
+        return False
 
 
 class RandomAgent(Player):
@@ -143,4 +147,11 @@ class MCTSAgent(Player):
         self.player_number = player_number
 
     def discard(self, game_state):
-        pass
+        # create state for mcts
+
+        root = MonteCarloTreeSearchNode(game_state)
+        selected_node = root.best_action()
+        return selected_node.parent_action[1]
+
+    def is_mcts(self):
+        return True
