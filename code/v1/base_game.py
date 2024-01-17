@@ -104,16 +104,16 @@ def main(player_types, print_output=False):
     state = GameState(deck, all_players)
 
     # print initial game state
-    # state.print()
+    state.print()
 
     # gameplay
     while not state.ended():
         # action = state.get_next_action()
         # print(action)
-        state.print()
+        # state.print()
         state = state.next_game_state()
 
-        # state.print()
+        state.print()
 
     # end of game output
     return end_of_game_output(state, print_output)
