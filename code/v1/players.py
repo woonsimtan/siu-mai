@@ -5,8 +5,8 @@ from v1.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
-    def __init__(self, possible_discards):
-        self._displayed_tiles = TileList([])
+    def __init__(self, possible_discards, displayed_tiles=TileList([])):
+        self._displayed_tiles = displayed_tiles
         self._possible_discards = possible_discards
 
     @property
@@ -26,6 +26,7 @@ class Player(ABC):
         self._possible_discards = value
 
     def pickup(self, tile):
+        # print("PICKUP called")
         self._possible_discards.add(tile)
 
     def all_tiles(self):
@@ -67,8 +68,8 @@ class RandomAgent(Player):
 
 
 class SemiRandomAgent(Player):
-    def __init__(self, possible_discards):
-        super().__init__(possible_discards)
+    def __init__(self, possible_discards, displayed_tiles=TileList([])):
+        super().__init__(possible_discards, displayed_tiles)
         self._pair = TileList([])
         self._locked_tiles = TileList([])
 
@@ -148,8 +149,13 @@ class MCTSAgent(Player):
 
     def discard(self, game_state):
         # create state for mcts
-        root = MonteCarloTreeSearchNode(game_state)
+        print("initialised with current player: ", game_state._current_player_number)
+        root = MonteCarloTreeSearchNode(game_state.initialise_mcts_state())
         selected_node = root.best_action()
+        print("action selected")
+        # return DUMMY_TILE
+        print(selected_node.parent_action[1].to_string())
+        # self._possible_discards.remove_tiles(TileList([selected_node.parent_action[1]]))
         return selected_node.parent_action[1]
 
     def is_mcts(self):
