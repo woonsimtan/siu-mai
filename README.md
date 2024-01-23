@@ -22,6 +22,28 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 
 - `poetry run metrics -n <number-of-games> -save <y/n>`
 
+### Testing a single game
+
+- Update the list of agent types in base_game.py
+- `poetry run review`
+
 ### Testing during development
 
 - `poetry run coverage run -m pytest; poetry run coverage report -m`
+
+## Notes
+
+**BUG:** MCTS agent mostly discarding the tile it just picked up. Perhaps should do tree search built on semi random agent?
+
+**BUG:** MCTS fails sometimes - search hits a point where not terminal node but has no children
+
+### Runtimes
+
+4 MCTS Agents in a single game
+
+- 10 simulations -> 39s
+- 100 simulations -> 6 mins
+- 1000 simulations -> 1h
+- 10k simulations -> ~10h
+
+Requires 25mins to run all combinations of agents, with some games failing and 10 simulations.
