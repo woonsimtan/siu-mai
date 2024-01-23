@@ -15,17 +15,24 @@ The following functions are defined for a `Tile`:
 
 - `__eq__` - two tiles are equal if they have the same suit and same value
 - `__lt__` - A is less than B if A has a smaller suit or a smaller value
-- `to_string` - returns a string representation of the tile
+- `to_string` returns a string representation of the tile
+- `print` outputs the tile in terminal.
+- `copy` returns a new identical Tile
 
-An extra `DUMMY_TILE` has been defined for use in initialising the game.
+An extra `DUMMY_TILE` has been defined for use as a placeholder. Checks have been implemented to remove them from a player's hand when identified.
 
 The `TileList` class is created to represent a list of mahjong tiles. It has the following properties:
 
-- `tiles` = list of `Tile` objects, initialised to be empty unless specified.
+- `tiles` = list of `Tile` objects
 
-The following functions are defined for a `TileList` -`sort` sorts tiles by suit type and value, does not return anything.
+Note: Supposed to be initialised as empty if tiles is not specified but had issues so should be initialised as `TileList([])` if necessary.
 
+The following functions are defined for a `TileList`
+
+- `__eq__` returns if the provided lists are the same.
+- `sort` sorts tiles by suit type and value, does not return anything.
 - `print_form` returns a list of strings, representing sorted tiles in a list.
+- `print` outputs the list in terminal.
 - `add` adds a single tile into the list.
 - `add_tiles` adds a given `TileList` into the list.
 - `shuffle` mixes up the order of tiles randomly.
@@ -41,6 +48,30 @@ The following functions are defined for a `TileList` -`sort` sorts tiles by suit
 - `copy` returns a new `TileList` with the same set of tiles
 - `check_for_win` takes a tile and examines if the list is a winning hand with the addition of this new tile.
 
+### game_state.py
+
+Defines a `GameState` for the purpose of gameplay and MCTS.
+
+The following properties are defined:
+
+- `deck`
+- `players`
+- `discarded_tiles`
+- `last_discarded`
+- `current_player_number`
+
+The following functions are defined:
+
+- `print` outputs in the terminal all the tiles each player has in their hand, along with the current player number and the last discarded tile.
+- `any_peng` checks if any players can peng.
+- `any_wins` checks if any players can win on the discarded tile.
+- `game_result` returns a value depending on the maximising player and the game state corresponding to a win, tie or loss.
+- `ended` returns if the deck has been emptied or if a player has won.
+- `get_legal_actions` returns the list of actions that a player can choose to carry out.
+- `get_next_action` ???
+- `initialise_mcts_state` returns a game state proposed by the MCTS agent based on the information it currently has available.
+- `get_tiles_hidden_from_player` returns a list of
+
 ### base_game.py
 
 The following functions are defined to setup and run the game:
@@ -52,16 +83,14 @@ The following functions are defined to setup and run the game:
 - `setup_players` puts each player into the list, creating an agent for each specified type.
 - `main` runs gameplay.
 
-## Agents
+## Agents (players.py)
 
-(Should consider implementing agent as an abstract class?)
-
-Each agent has to have the following properties defined:
+Player has been implemented as an abstract class with the following properties defined:
 
 - `possible_discards`
 - `displayed_tiles`
 
-Each agent needs to have the following functions defined:
+The following functions have also been defined for them:
 
 - `pickup` adds a new tile to possible discards.
 - `all_tiles` returns all tiles that the agent holds.
@@ -70,40 +99,58 @@ Each agent needs to have the following functions defined:
 - `choose_peng` returns a boolean for whether the agent should PENG.
 - `peng` shifts the tiles for the move into the list of displayed tiles and removes them from possible discards.
 - `discard` selects a tile to discard.
-- `get_possible_discards` returns tiles that the agent can select their discards from.
 - `get_hidden_tiles` returns tiles that the agent has that are hidden from other players.
+- `total_tile_count` returns total number of tiles the agent holds.
+- `is_mcts` returns if the agent is a MCTS agent.
 
-### random_agent.py
+### RandomAgent
 
-The logic that the semi-random agent follows is as below:
+The RandomAgent extends the Player class without any changes.
+
+- It will PENG when possible.
+- It will randomly select a discard tile from all of the possible discards in its hand.
+
+### SemiRandomAgent
+
+The SemiRandomAgent extends the Player class with some changes. The logic that the semi-random agent follows is as below:
 
 - Tiles will be grouped into sets of three where possible (three of a kind or a sequence of the same suit).
 - A pair will be retained at first opportunity.
 - Tiles which are in a group or in a pair are locked in the players hand and will not be discarded.
 - The discarded tile will be randomly selected amongst the remaining tiles in the player's hand.
 
-Note: the agent is not discarding from a random tile from an expected hand - this could be a point of failure in implementation, but it is not blocking and the agent can still win.
+**TODO:** assert if the agent is discarding a random tile from an expected hand.
 
-The following properties are defined for the agent:
+The following extra properties are defined for the agent:
 
 - `pair` = TileList containing a pair of identical tiles.
 - `locked_tiles` = TileList containing tiles that will not be discarded.
-- `possible_discards` = TileList from which the agent selects a tile to randomly discard
-- `displayed_tiles` = Results of peng moves during the game.
 
 The following functions are defined for the agent:
 
 - `all_tiles` returns a complete TileList of all the tiles the agent holds.
-- `total_tile_count` returns count of all tiles held.
-- `discard` removes a randomly selected tile and returns it.
+- `get_hidden_tiles` returns all of the tiles hidden from other players.
+- `pickup` adds a tile to the player's hand and checks for tiles to lock.
 - `lock_three_of_a_kind` checks for 3 of the same tiles within the agent's hand, takes them out of the possible discard pile and locks them.
 - `lock_three_consecutive` checks for 3 consecutive tiles from the same suit within the agent's hand, takes them out of the possible discard pile and locks them.
 - `lock_triples` locks both three of a kind and consecutive tiles.
 - `lock_pair` checks for pairs in the players hand, selecting a random pair if there are multiple, and locks those.
-- `check_for_win` checks for a winning hand with all of the agent's tiles.
-- `check_for_peng` checks if the agent can peng based on their hand.
-- `peng` shifts tiles into display, and removes them from possible discards.
 
-### mcts_node.py and mcts_agent.py
+### MCTSAgent
 
-should have a node for peng/no peng and selecting discard tile
+The MCTSAgent extends the player class with some changes. It utilises Monte Carlo Tree Search as implemented in `mcts.py`.
+
+The following extra properties are defined for the agent:
+
+- `player_number`
+
+The following functions are defined for the agent:
+
+- `discard` creates a MonteCarloTreeSearch node and searches for the best action, returning the tile chosen for discard.
+- `is_mcts` returns True
+
+**TODO:** implement function for deciding if the agent should PENG.
+
+## MCTS set-up
+
+This utilises skeleton code taken from [an MCTS tutorial](https://github.com/ai-boson/mcts).

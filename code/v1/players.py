@@ -26,7 +26,6 @@ class Player(ABC):
         self._possible_discards = value
 
     def pickup(self, tile):
-        # print("PICKUP called")
         self._possible_discards.add(tile)
 
     def all_tiles(self):
@@ -152,11 +151,18 @@ class MCTSAgent(Player):
         print("initialised with current player: ", game_state._current_player_number)
         root = MonteCarloTreeSearchNode(game_state.initialise_mcts_state())
         selected_node = root.best_action()
-        print("action selected")
-        # return DUMMY_TILE
-        print(selected_node.parent_action[1].to_string())
-        # self._possible_discards.remove_tiles(TileList([selected_node.parent_action[1]]))
-        return selected_node.parent_action[1]
+
+        if selected_node == -1:
+            print("MCTS failed: discarding random tile")
+            return self._possible_discards.remove_random_tile()
+        else:
+            print(
+                "action selected: discard ", selected_node.parent_action[1].to_string()
+            )
+            self._possible_discards.remove_tiles(
+                TileList([selected_node.parent_action[1]])
+            )
+            return selected_node.parent_action[1]
 
     def is_mcts(self):
         return True

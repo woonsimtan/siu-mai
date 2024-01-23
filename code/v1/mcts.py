@@ -12,12 +12,12 @@ class MonteCarloTreeSearchNode:
         self._results = defaultdict(int)
         self._results[1] = 0
         self._results[-1] = 0
-        # self._untried_actions = None
         self._untried_actions = self.untried_actions()
         self.maximising_player = state._current_player_number
         return
 
     def untried_actions(self):
+        # print("UNTRIED ACTIONS CALLED")
         self._untried_actions = self.state.get_legal_actions()
         return self._untried_actions
 
@@ -30,17 +30,12 @@ class MonteCarloTreeSearchNode:
         return self._number_of_visits
 
     def expand(self):
-        # print("EXPAND")
-        # print(self._untried_actions)
+        # print("EXPAND CALLED")
         action = self._untried_actions.pop()
-        # print(action)
-        # print("a")
         next_state = self.move(action)
-        # print("b")
         child_node = MonteCarloTreeSearchNode(
             next_state, parent=self, parent_action=action
         )
-        # print("c")
         self.children.append(child_node)
         return child_node
 
@@ -49,66 +44,62 @@ class MonteCarloTreeSearchNode:
 
     def rollout(self):
         current_rollout_state = self.state
-        # print("rollout")
         while not current_rollout_state.ended():
             possible_moves = current_rollout_state.get_legal_actions()
 
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.next_game_state(action)
-        # print("rollout ended")
         return current_rollout_state.game_result(self.maximising_player)
 
     def backpropagate(self, result):
+        # print("BACKPROPOGATE CALLED")
         self._number_of_visits += 1.0
         self._results[result] += 1.0
-        if self.parent:
+        # print(self._results)
+        if self.parent is not None:
             self.parent.backpropagate(result)
 
     def is_fully_expanded(self):
         return len(self._untried_actions) == 0
 
     def best_child(self, c_param=0.1):
+        # print("BEST CHILD CALLED")
         choices_weights = [
             (c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n()))
             for c in self.children
         ]
-        print(choices_weights)
+        if len(choices_weights) == 0:
+            return -1
+        # currently really likes to discard the tile it picked up? Don't understand why.
+
+        # print(choices_weights)
+
         return self.children[np.argmax(choices_weights)]
 
     def rollout_policy(self, possible_moves):
+        # print("ROLLOUT POLICY CALLED")
         return possible_moves[np.random.randint(len(possible_moves))]
 
     def _tree_policy(self):
-        # print("a")
+        # print("TREE POLICY CALLED")
         current_node = self
-        # print("b")
         while not current_node.is_terminal_node():
-            # print("c")
             if not current_node.is_fully_expanded():
-                # print("d")
                 return current_node.expand()
             else:
-                # print("e")
                 current_node = current_node.best_child()
-        # print("f")
         return current_node
 
     def best_action(self):
-        simulation_no = 10
+        # print("BEST ACTION CALLED")
+        simulation_no = 1000
 
         for i in range(simulation_no):
-            # print(i)
             v = self._tree_policy()
-            # print("TREE POLICY called")
             reward = v.rollout()
             v.backpropagate(reward)
 
         return self.best_child(c_param=0.0)
-
-    # class MCTSState:
-    #     def __init__(self, game_state):
-    #         self._players = game_state._players
-    #         self._deck = game_state._deck
 
     def get_legal_actions(self):
         """
@@ -127,8 +118,6 @@ class MonteCarloTreeSearchNode:
                 actions.append(["PENG"])
             actions.append(["PICKUP"])
 
-        # print(actions)
-
         return actions
 
     def is_game_over(self):
@@ -139,20 +128,6 @@ class MonteCarloTreeSearchNode:
         true or false
         """
         return self.state.ended()
-
-    # def game_result(self):
-    #     """
-    #     Modify according to your game or
-    #     needs. Returns 1 or 0 or -1 depending
-    #     on your state corresponding to win,
-    #     tie or a loss.
-    #     """
-    #     if self.state.check_for_win() == self.maximising_player:
-    #         return 1
-    #     elif self.state.check_for_win() == -1:
-    #         return 0
-    #     else:
-    #         return -1
 
     def move(self, action):
         """
@@ -169,9 +144,3 @@ class MonteCarloTreeSearchNode:
         the new state after making a move.
         """
         return self.state.next_game_state(action)
-
-
-# def main():
-#     root = MonteCarloTreeSearchNode(state, None, action)
-#     selected_node = root.best_action()
-#     return selected_node.parent_action[1]

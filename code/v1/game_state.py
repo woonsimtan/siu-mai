@@ -1,6 +1,6 @@
 from v1.tiles import *
 from copy import deepcopy
-from v1.players import RandomAgent
+from v1.players import SemiRandomAgent
 
 
 class GameState:
@@ -102,15 +102,15 @@ class GameState:
         # print(actions)
         return actions
 
-    def get_next_action(self):
-        # check for peng
-        peng_player = self.any_peng()
-        if peng_player != -1:
-            p = self._players[peng_player]
-            if p.choose_peng():
-                return "PENG"
-        # else next player picks up
-        return "PICKUP"
+    # def get_next_action(self):
+    #     # check for peng
+    #     peng_player = self.any_peng()
+    #     if peng_player != -1:
+    #         p = self._players[peng_player]
+    #         if p.choose_peng():
+    #             return "PENG"
+    #     # else next player picks up
+    #     return "PICKUP"
 
     def initialise_mcts_state(self):
         hidden_tiles = self.get_tiles_hidden_from_player()
@@ -120,7 +120,7 @@ class GameState:
         for i in range(4):
             if i == self._current_player_number:
                 players.append(
-                    RandomAgent(
+                    SemiRandomAgent(
                         self._players[i].possible_discards,
                         self._players[i].displayed_tiles,
                     )
@@ -130,7 +130,9 @@ class GameState:
                 for j in range(self._players[i].possible_discards.size()):
                     newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
                 players.append(
-                    RandomAgent(newly_assigned_tiles, self._players[i].displayed_tiles)
+                    SemiRandomAgent(
+                        newly_assigned_tiles, self._players[i].displayed_tiles
+                    )
                 )
 
         # deck, players, discarded_tiles, last_discarded, current_player_number
@@ -205,7 +207,7 @@ class GameState:
                         current_player_number,
                     )
                 )
-                players[current_player_number]._possible_discards.remove(last_discarded)
+                # players[current_player_number]._possible_discards.remove(last_discarded)
             else:
                 last_discarded = players[current_player_number].discard()
             # print("DISCARD called")

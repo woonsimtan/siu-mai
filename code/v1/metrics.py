@@ -9,7 +9,7 @@ import argparse
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"]  # , "MCTS"]
+POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM", "MCTS"]
 # POSSIBLE_AGENTS = ["MCTS"]
 
 
@@ -82,7 +82,7 @@ def main():
     startTime = datetime.now()
 
     # open files
-    game_hist = pd.read_csv(os.getcwd() + "\\" + "v1\game_history.csv")
+    game_hist = pd.read_csv(os.getcwd() + "\\" + "v1\\game_history.csv")
     args = parse_arguments()
 
     n = args.n
@@ -103,7 +103,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "\\" + "v1\game_history.csv", index=False
+                        os.getcwd() + "\\" + "v1\\game_history.csv", index=False
                     )
             except Exception as e:
                 print(e)
@@ -117,8 +117,9 @@ def main():
 
     # summarize data
 
-    x = k - failed_games
-    game_hist = game_hist[x:]
+    if n != 0:
+        x = k - failed_games
+        game_hist = game_hist[x:]
 
     win_rate(game_hist)
 
