@@ -1,6 +1,8 @@
 import numpy as np
 from collections import defaultdict
 
+from numba import jit, cuda
+
 
 class MonteCarloTreeSearchNode:
     def __init__(self, state, parent=None, parent_action=None):
@@ -19,12 +21,20 @@ class MonteCarloTreeSearchNode:
     def untried_actions(self):
         # print("UNTRIED ACTIONS CALLED")
         self._untried_actions = self.state.get_legal_actions()
+        # if len(self._untried_actions) > 1:
+        #     self.state.print()
+        # print("Untried actions:")
+        # for a in self._untried_actions:
+        #     if len(a) > 1:
+        #         print(a[0], a[1].to_string())
         return self._untried_actions
 
     def q(self):
         wins = self._results[1]
         loses = self._results[-1]
-        return wins - loses
+        q_value = wins - loses
+        # print(f"Q-value: {q_value}")
+        return q_value
 
     def n(self):
         return self._number_of_visits
@@ -70,11 +80,29 @@ class MonteCarloTreeSearchNode:
         ]
         if len(choices_weights) == 0:
             return -1
-        # currently really likes to discard the tile it picked up? Don't understand why.
 
-        # print(choices_weights)
+        # print("--------- New iteration of choices ---------")
+        # for i in range(len(choices_weights)):
+        #     if len(self.children[i].parent_action) > 1:
+        #         print(
+        #             self.children[i].parent_action[0],
+        #             self.children[i].parent_action[1].to_string(),
+        #             choices_weights[i],
+        #         )
 
-        return self.children[np.argmax(choices_weights)]
+        # if there are same values, return random child
+        indices = [
+            i for i, x in enumerate(choices_weights) if x == max(choices_weights)
+        ]
+        if len(indices) > 1:
+            return self.children[np.random.choice(indices)]
+        else:
+            return self.children[np.argmax(choices_weights)]
+
+        # if len([x for x in choices_weights if x == np.argmax(choices_weights)]) > 1:
+        #     return self.children[np.random.randint(len(self.children))]
+        # else:
+        #     return self.children[np.argmax(choices_weights)]
 
     def rollout_policy(self, possible_moves):
         # print("ROLLOUT POLICY CALLED")
@@ -90,16 +118,17 @@ class MonteCarloTreeSearchNode:
                 current_node = current_node.best_child()
         return current_node
 
+    @jit(target_backend="cuda", forceobj=True)
     def best_action(self):
         # print("BEST ACTION CALLED")
-        simulation_no = 1000
+        simulation_no = 100
 
         for i in range(simulation_no):
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
 
-        return self.best_child(c_param=0.0)
+        return self.best_child()  # c_param=0.0
 
     def get_legal_actions(self):
         """

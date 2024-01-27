@@ -157,7 +157,7 @@ class MCTSAgent(Player):
             return self._possible_discards.remove_random_tile()
         else:
             print(
-                "action selected: discard ", selected_node.parent_action[1].to_string()
+                "action selected: discard", selected_node.parent_action[1].to_string()
             )
             self._possible_discards.remove_tiles(
                 TileList([selected_node.parent_action[1]])

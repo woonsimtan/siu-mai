@@ -9,8 +9,8 @@ import argparse
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM", "MCTS"]
-# POSSIBLE_AGENTS = ["MCTS"]
+# POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM", "MCTS"]
+POSSIBLE_AGENTS = ["MCTS"]
 
 
 def add_to_wins(row):
@@ -75,6 +75,13 @@ def parse_arguments():
         required=False,
         default="n",
     )
+    parser.add_argument(
+        "-csv",
+        help="name of the csv file that game data should be saved to",
+        type=str,
+        required=False,
+        default="game_history",
+    )
     return parser.parse_args()
 
 
@@ -82,8 +89,9 @@ def main():
     startTime = datetime.now()
 
     # open files
-    game_hist = pd.read_csv(os.getcwd() + "\\" + "v1\\game_history.csv")
+
     args = parse_arguments()
+    game_hist = pd.read_csv(os.getcwd() + "\\" + f"v1\\{args.csv}.csv")
 
     n = args.n
     save = args.save == "y"
@@ -103,7 +111,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "\\" + "v1\\game_history.csv", index=False
+                        os.getcwd() + "\\" + f"v1\\{args.csv}.csv", index=False
                     )
             except Exception as e:
                 print(e)

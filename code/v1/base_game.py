@@ -107,5 +107,6 @@ def main(player_types, print_output=False):
 def review():
     startTime = datetime.now()
     agents = ["MCTS", "MCTS", "MCTS", "MCTS"]
+    # agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents, True)
     print(f"Game took {datetime.now() - startTime} to run.")

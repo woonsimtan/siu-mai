@@ -33,9 +33,11 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 
 ## Notes
 
-**BUG:** MCTS agent mostly discarding the tile it just picked up. Perhaps should do tree search built on semi random agent?
+**BUG:** MCTS agent mostly discarding the tile it just picked up.
 
 **BUG:** MCTS fails sometimes - search hits a point where not terminal node but has no children
+
+**BUG:** Sometimes after PENG players end up with 16 tiles
 
 ### Runtimes
 
