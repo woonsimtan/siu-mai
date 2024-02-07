@@ -1,11 +1,10 @@
 import numpy as np
 from collections import defaultdict
-
-from numba import jit, cuda
-
+import pdb
 
 class MonteCarloTreeSearchNode:
-    def __init__(self, state, parent=None, parent_action=None):
+    def __init__(self, state, completed_games, parent=None, parent_action=None):
+        self.completed_games = completed_games
         self.state = state
         self.parent = parent
         self.parent_action = parent_action
@@ -21,32 +20,28 @@ class MonteCarloTreeSearchNode:
     def untried_actions(self):
         # print("UNTRIED ACTIONS CALLED")
         self._untried_actions = self.state.get_legal_actions()
-        # if len(self._untried_actions) > 1:
-        #     self.state.print()
-        # print("Untried actions:")
-        # for a in self._untried_actions:
-        #     if len(a) > 1:
-        #         print(a[0], a[1].to_string())
         return self._untried_actions
 
     def q(self):
         wins = self._results[1]
         loses = self._results[-1]
         q_value = wins - loses
-        # print(f"Q-value: {q_value}")
         return q_value
 
     def n(self):
         return self._number_of_visits
 
     def expand(self):
-        # print("EXPAND CALLED")
+        # pdb.set_trace()
+        # Variables to check: self.state, action, self._untried_actions
         action = self._untried_actions.pop()
         next_state = self.move(action)
         child_node = MonteCarloTreeSearchNode(
-            next_state, parent=self, parent_action=action
+            next_state, self.completed_games, parent=self, parent_action=action
         )
         self.children.append(child_node)
+        # pdb.set_trace()
+        # Variables to check: self.state, action, self._untried_actions
         return child_node
 
     def is_terminal_node(self):
@@ -62,12 +57,19 @@ class MonteCarloTreeSearchNode:
         return current_rollout_state.game_result(self.maximising_player)
 
     def backpropagate(self, result):
-        # print("BACKPROPOGATE CALLED")
+        # pdb.set_trace()  # Breakpoint
+        # Check the result being backpropagated and the current node's visit count and results
+        # Variables to check: result, self._number_of_visits, self._results
         self._number_of_visits += 1.0
         self._results[result] += 1.0
-        # print(self._results)
+        
         if self.parent is not None:
             self.parent.backpropagate(result)
+
+        # pdb.set_trace()  # Breakpoint
+        # Check the result being backpropagated and the current node's visit count and results
+        # Variables to check: result, self._number_of_visits, self._results
+        # print(self._results)
 
     def is_fully_expanded(self):
         return len(self._untried_actions) == 0
@@ -78,17 +80,15 @@ class MonteCarloTreeSearchNode:
             (c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n()))
             for c in self.children
         ]
+
+        # pdb.set_trace()  # Breakpoint
+        # Check the result being backpropagated and the current node's visit count and results
+        # Variables to check: result, self._number_of_visits, self._results
+
         if len(choices_weights) == 0:
             return -1
 
-        # print("--------- New iteration of choices ---------")
-        # for i in range(len(choices_weights)):
-        #     if len(self.children[i].parent_action) > 1:
-        #         print(
-        #             self.children[i].parent_action[0],
-        #             self.children[i].parent_action[1].to_string(),
-        #             choices_weights[i],
-        #         )
+        # TODO: should run checks for statistical significance
 
         # if there are same values, return random child
         indices = [
@@ -99,17 +99,10 @@ class MonteCarloTreeSearchNode:
         else:
             return self.children[np.argmax(choices_weights)]
 
-        # if len([x for x in choices_weights if x == np.argmax(choices_weights)]) > 1:
-        #     return self.children[np.random.randint(len(self.children))]
-        # else:
-        #     return self.children[np.argmax(choices_weights)]
-
     def rollout_policy(self, possible_moves):
-        # print("ROLLOUT POLICY CALLED")
         return possible_moves[np.random.randint(len(possible_moves))]
 
     def _tree_policy(self):
-        # print("TREE POLICY CALLED")
         current_node = self
         while not current_node.is_terminal_node():
             if not current_node.is_fully_expanded():
@@ -118,25 +111,21 @@ class MonteCarloTreeSearchNode:
                 current_node = current_node.best_child()
         return current_node
 
-    @jit(target_backend="cuda", forceobj=True)
     def best_action(self):
-        # print("BEST ACTION CALLED")
-        simulation_no = 100
-
-        for i in range(simulation_no):
+        # for i in range(self.simulation_no):
+        limit_count = self.completed_games * 10
+        i = 0
+        while self._results[1] + self._results[-1] < self.completed_games and i < limit_count:
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
+            i += 1
 
-        return self.best_child()  # c_param=0.0
+        # pdb.set_trace()
+        print(self._number_of_visits, self._results)
+        return self.best_child(c_param=0.0) # value can (and should) be adjusted
 
     def get_legal_actions(self):
-        """
-        Modify according to your game or
-        needs. Constructs a list of all
-        possible states from current state.
-        Returns a list.
-        """
         actions = []
         p = self.state._current_player_number
         if self.state._players[p].get_hidden_tiles().size() % 3 == 2:
@@ -150,26 +139,7 @@ class MonteCarloTreeSearchNode:
         return actions
 
     def is_game_over(self):
-        """
-        Modify according to your game or
-        needs. It is the game over condition
-        and depends on your game. Returns
-        true or false
-        """
         return self.state.ended()
 
     def move(self, action):
-        """
-        Modify according to your game or
-        needs. Changes the state of your
-        board with a new value. For a normal
-        Tic Tac Toe game, it can be a 3 by 3
-        array with all the elements of array
-        being 0 initially. 0 means the board
-        position is empty. If you place x in
-        row 2 column 3, then it would be some
-        thing like board[2][3] = 1, where 1
-        represents that x is placed. Returns
-        the new state after making a move.
-        """
         return self.state.next_game_state(action)

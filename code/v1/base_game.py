@@ -1,12 +1,10 @@
-from v1.tiles import *
+from tiles import *
 from datetime import datetime
 
-# from v1.random_agent import *
-from v1.players import *
+from players import *
 import pandas as pd
-from v1.game_state import *
+from game_state import *
 
-# from v1.mcts_agent import *
 
 # fixed values
 SUIT_VALUES = {
@@ -39,14 +37,14 @@ def distribute_tiles(to_distribute):
     return [TileList(tiles) for tiles in player_tiles]
 
 
-def setup_players(player_type_list, tiles):  # pragma: no cover
+def setup_players(player_type_list, tiles, simulations):  # pragma: no cover
     players = []
     for i in range(4):
         if player_type_list[i] == "RANDOM":
             player = RandomAgent(tiles[i])
             players.append(player)
         elif player_type_list[i] == "MCTS":
-            player = MCTSAgent(tiles[i], i)
+            player = MCTSAgent(tiles[i], i, simulations)
             players.append(player)
         elif player_type_list[i] == "SEMIRANDOM":
             player = SemiRandomAgent(tiles[i])
@@ -78,12 +76,12 @@ def end_of_game_output(state, print_output):  # pragma: no cover
     return p
 
 
-def main(player_types, print_output=False):
-    # initiate game state
+def main(player_types, completed_games, print_output=False):
 
+    # initiate game state
     deck = create_tiles()
     player_tiles = distribute_tiles(deck)
-    all_players = setup_players(player_types, player_tiles)
+    all_players = setup_players(player_types, player_tiles, completed_games)
 
     state = GameState(deck, all_players)
 
@@ -92,21 +90,18 @@ def main(player_types, print_output=False):
 
     # gameplay
     while not state.ended():
-        # print(action)
-        # state.print()
         state = state.next_game_state()
 
-        state.print()
-
     # end of game output
-
-    # state.print()
+    state.print()
     return end_of_game_output(state, print_output)
 
 
 def review():
     startTime = datetime.now()
-    agents = ["MCTS", "MCTS", "MCTS", "MCTS"]
-    # agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
+    agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents, True)
     print(f"Game took {datetime.now() - startTime} to run.")
+
+if __name__ == "__main__":
+    main()

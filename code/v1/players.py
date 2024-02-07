@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import random
-from v1.tiles import *
-from v1.mcts import MonteCarloTreeSearchNode
+from tiles import *
+from mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
@@ -142,23 +142,24 @@ class SemiRandomAgent(Player):
 
 
 class MCTSAgent(Player):
-    def __init__(self, possible_discards, player_number):
+    def __init__(self, possible_discards, player_number, simulations):
         super().__init__(possible_discards)
         self.player_number = player_number
+        self.simulations_to_run = simulations
 
     def discard(self, game_state):
         # create state for mcts
-        print("initialised with current player: ", game_state._current_player_number)
-        root = MonteCarloTreeSearchNode(game_state.initialise_mcts_state())
+        # print("initialised with current player: ", game_state._current_player_number)
+        root = MonteCarloTreeSearchNode(game_state.initialise_mcts_state(), self.simulations_to_run)
         selected_node = root.best_action()
 
         if selected_node == -1:
-            print("MCTS failed: discarding random tile")
+            # print("MCTS failed: discarding random tile")
             return self._possible_discards.remove_random_tile()
         else:
-            print(
-                "action selected: discard", selected_node.parent_action[1].to_string()
-            )
+            # print(
+            #     "action selected: discard", selected_node.parent_action[1].to_string()
+            # )
             self._possible_discards.remove_tiles(
                 TileList([selected_node.parent_action[1]])
             )

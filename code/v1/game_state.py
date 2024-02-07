@@ -1,6 +1,6 @@
-from v1.tiles import *
+from tiles import *
 from copy import deepcopy
-from v1.players import SemiRandomAgent
+from players import SemiRandomAgent
 
 
 class GameState:
@@ -56,12 +56,6 @@ class GameState:
             )
 
     def game_result(self, maximising_player):
-        """
-        Modify according to your game or
-        needs. Returns 1 or 0 or -1 depending
-        on your state corresponding to win,
-        tie or a loss.
-        """
         if self.any_wins(DUMMY_TILE) == maximising_player:
             return 1
         elif self.any_wins(DUMMY_TILE) == -1:
@@ -80,9 +74,6 @@ class GameState:
     def get_legal_actions(self):
         actions = []
         p = self._current_player_number
-        # print("GET LEGAL ACTIONS")
-        # print(p)
-        # this is the problem?
         if self._players[p].get_hidden_tiles().size() % 3 == 2:
             for tile in self._players[p].get_hidden_tiles().tiles:
                 actions.append(["DISCARD", tile])
@@ -92,25 +83,7 @@ class GameState:
                 actions.append(["PASS"])  # and "PASS"
             else:
                 actions.append(["PICKUP"])
-
-        # if self._players[p].get_hidden_tiles().size() % 3 != 2:
-        #     if self.any_peng() != -1:
-        #         actions.append(["PENG"])  # and "PASS"
-        #     actions.append(["PICKUP"])
-        # else:
-        #     p = (self._current_player_number + 1) % 4
-        # print(actions)
         return actions
-
-    # def get_next_action(self):
-    #     # check for peng
-    #     peng_player = self.any_peng()
-    #     if peng_player != -1:
-    #         p = self._players[peng_player]
-    #         if p.choose_peng():
-    #             return "PENG"
-    #     # else next player picks up
-    #     return "PICKUP"
 
     def initialise_mcts_state(self):
         hidden_tiles = self.get_tiles_hidden_from_player()
@@ -135,7 +108,6 @@ class GameState:
                     )
                 )
 
-        # deck, players, discarded_tiles, last_discarded, current_player_number
         return GameState(
             hidden_tiles,
             players,
@@ -168,26 +140,24 @@ class GameState:
         choose_peng = False
 
         # carry out actions
+        # if a player can peng they should select if they carry out the action
         if self.any_peng() != -1:
             choose_peng = players[self.any_peng()].choose_peng()
+        # player chooses to peng
         if (choose_peng and action is None) or (action == ["PENG"]):
-            # print("PENG")
             current_player_number = self.any_peng()
             players[current_player_number].peng(last_discarded)
-
-        # this condition needs to be fixed - it's not strong enough
+        # TODO: check these conditions (no peng occurs)
         if (
             (self.any_peng() != -1 and not choose_peng)
             or (self.any_peng() == -1 and action is None)
             or (action == ["PICKUP"])
             or (action == ["PASS"])
         ):
-            # print("PICKUP")
             discarded_tiles.add(last_discarded)
-            # print("GAMEPLAY PICKUP CALLED")
             current_player_number = (current_player_number + 1) % 4
             players[current_player_number].pickup(deck.remove_random_tile())
-            # check for win
+            # check for win from pickup tile
             if players[current_player_number].check_for_win():
                 last_discarded = DUMMY_TILE
                 game_end = True
@@ -196,7 +166,6 @@ class GameState:
         if (not game_end and action is None) or (
             action is not None and action[0] == "DISCARD"
         ):
-            # players[current_player_number].possible_discards.print()
             if players[current_player_number].is_mcts():
                 last_discarded = players[current_player_number].discard(
                     GameState(
@@ -207,10 +176,8 @@ class GameState:
                         current_player_number,
                     )
                 )
-                # players[current_player_number]._possible_discards.remove(last_discarded)
             else:
                 last_discarded = players[current_player_number].discard()
-            # print("DISCARD called")
 
         players_copy = []
         for i in range(4):
