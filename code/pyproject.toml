@@ -11,6 +11,7 @@ pytest = "^7.4.2"
 black = "^23.10.1"
 pandas = "^2.1.2"
 mahjong = "^1.2.1"
+numba = "^0.58.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -23,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 base_game = "v1.base_game:main"
 metrics = "v1.metrics:main"
-ignore = "v1.ignore:main"
+review = "v1.base_game:review"
 
 [tool.pytest.ini_options]
 pythonpath = "v1"
