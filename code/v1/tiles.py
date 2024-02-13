@@ -47,6 +47,16 @@ class TileList:
         self.sort()
         other.sort()
         return self.tiles == other.tiles
+    
+    def get_tiles_by_suit(self):
+        tiles_by_suit = {}
+        for t in self.tiles:
+            if t.suit_type not in tiles_by_suit.keys():
+                tiles_by_suit[t.suit_type] = TileList([t])
+            else:
+                tiles_by_suit[t.suit_type].add(t)
+        return tiles_by_suit
+
 
     def print_form(self):
         to_print = []
