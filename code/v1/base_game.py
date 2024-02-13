@@ -91,6 +91,8 @@ def main(player_types, completed_games, print_output=False):
     # gameplay
     while not state.ended():
         state = state.next_game_state()
+        for p in all_players:
+            p.all_tiles().hand_score()
 
     # end of game output
     state.print()

@@ -58,10 +58,17 @@ class GameState:
     def game_result(self, maximising_player):
         if self.any_wins(DUMMY_TILE) == maximising_player:
             return 1
-        elif self.any_wins(DUMMY_TILE) == -1:
-            return 0
-        else:
+        elif self.any_wins(DUMMY_TILE) != -1:
             return -1
+        else:
+            # return 0
+            scores = [p.all_tiles().hand_score() for p in self._players]
+            max_player_score = scores.pop(maximising_player)
+            # option 1: take the highest of other player's score
+            other_score = max(scores)
+            # # option 2: take the average of the other player's score
+            # other_score = sum(scores) / len(scores)
+            return max_player_score - other_score
 
     def ended(self):
         if self.deck.size() == 0:

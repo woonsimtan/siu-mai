@@ -6,11 +6,13 @@ import math
 from datetime import datetime
 import itertools
 import argparse
+import traceback
+    
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"] # "MCTS"]
-# POSSIBLE_AGENTS = ["MCTS"]
+# POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"] # "MCTS"]
+POSSIBLE_AGENTS = ["MCTS"]
 
 
 def add_to_wins(row):
@@ -116,6 +118,7 @@ def main():
             except Exception as e:
                 print(e)
                 print(p)
+                traceback.print_exc()
                 failed_games += 1
                 continue
 

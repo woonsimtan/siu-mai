@@ -10,9 +10,10 @@ class MonteCarloTreeSearchNode:
         self.parent_action = parent_action
         self.children = []
         self._number_of_visits = 0
-        self._results = defaultdict(int)
-        self._results[1] = 0
-        self._results[-1] = 0
+        self._results = 0
+        # self._results = defaultdict(int)
+        # self._results[1] = 0
+        # self._results[-1] = 0
         self._untried_actions = self.untried_actions()
         self.maximising_player = state._current_player_number
         return
@@ -23,10 +24,11 @@ class MonteCarloTreeSearchNode:
         return self._untried_actions
 
     def q(self):
-        wins = self._results[1]
-        loses = self._results[-1]
-        q_value = wins - loses
-        return q_value
+        # wins = self._results[1]
+        # loses = self._results[-1]
+        # q_value = wins - loses
+        # return q_value
+        return self._results
 
     def n(self):
         return self._number_of_visits
@@ -61,7 +63,8 @@ class MonteCarloTreeSearchNode:
         # Check the result being backpropagated and the current node's visit count and results
         # Variables to check: result, self._number_of_visits, self._results
         self._number_of_visits += 1.0
-        self._results[result] += 1.0
+        # self._results[result] += 1.0
+        self._results += result
         
         if self.parent is not None:
             self.parent.backpropagate(result)
@@ -112,10 +115,10 @@ class MonteCarloTreeSearchNode:
         return current_node
 
     def best_action(self):
-        # for i in range(self.simulation_no):
-        limit_count = self.completed_games * 10
-        i = 0
-        while self._results[1] + self._results[-1] < self.completed_games and i < limit_count:
+        for i in range(self.completed_games): # simulation number
+        # limit_count = self.completed_games * 10
+        # i = 0
+        # while self._results[1] + self._results[-1] < self.completed_games and i < limit_count:
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)

@@ -4,6 +4,7 @@ from collections import Counter
 from abc import ABC, abstractmethod
 
 
+
 # Tile class definition
 class Tile:
     def __init__(self, suit_type, value):
@@ -193,3 +194,41 @@ class TileList:
             return False
 
         return bt(counts, False)
+    
+    def hand_score(self):
+        # check suit count
+        if len(self.get_tiles_by_suit().keys()) > 2:
+            return 0
+
+        counts = self.tile_counts()
+        triples = len([
+            Tile(tile_str[:-1], tile_str[-1])
+            for tile_str in counts.keys()
+            if counts[tile_str] >= 3
+        ])
+
+        pairs = len([
+            Tile(tile_str[:-1], tile_str[-1])
+            for tile_str in counts.keys()
+            if counts[tile_str] == 2 or counts[tile_str] == 4
+        ])
+
+        self.sort()
+        seq = 0
+        for tile in self.tiles:
+            second = Tile(tile.suit_type, str(int(tile.value) + 1))
+            third = Tile(tile.suit_type, str(int(tile.value) + 2))
+            if (
+                self.contains(tile)
+                and self.contains(second)
+                and self.contains(third)
+            ):
+                seq += 1
+        
+        # 10 is arbitrary
+        score = (pairs + triples + seq) / 20
+
+        if score > 1:
+            raise ValueError("Invalid score:", score)
+
+        return score

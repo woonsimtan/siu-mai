@@ -66,7 +66,12 @@ class Player(ABC):
     def discard(self, game_state=None):
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         if self.unwanted_suit not in tiles_by_suit.keys():
-            return self._possible_discards.remove_random_tile()
+            try:
+                return self._possible_discards.remove_random_tile()
+            except:
+                self._possible_discards.print()
+                self.all_tiles().print()
+                raise ValueError("Random discard failed")
         else:
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
