@@ -4,7 +4,6 @@ from collections import Counter
 from abc import ABC, abstractmethod
 
 
-
 # Tile class definition
 class Tile:
     def __init__(self, suit_type, value):
@@ -48,16 +47,16 @@ class TileList:
         self.sort()
         other.sort()
         return self.tiles == other.tiles
-    
-    def get_tiles_by_suit(self):
-        tiles_by_suit = {}
-        for t in self.tiles:
-            if t.suit_type not in tiles_by_suit.keys():
-                tiles_by_suit[t.suit_type] = TileList([t])
-            else:
-                tiles_by_suit[t.suit_type].add(t)
-        return tiles_by_suit
 
+    def get_tiles_by_suit(self):
+        tiles_by_suit = {
+            "Bamboo": TileList([]),
+            "Numbers": TileList([]),
+            "Circles": TileList([]),
+        }
+        for t in self.tiles:
+            tiles_by_suit[t.suit_type].add(t)
+        return tiles_by_suit
 
     def print_form(self):
         to_print = []
@@ -194,39 +193,42 @@ class TileList:
             return False
 
         return bt(counts, False)
-    
-    def hand_score(self):
+
+    def hand_score(self, unwanted_suit):
         # check suit count
-        if len(self.get_tiles_by_suit().keys()) > 2:
+        if self.get_tiles_by_suit()[unwanted_suit].size() > 0:
             return 0
 
         counts = self.tile_counts()
-        triples = len([
-            Tile(tile_str[:-1], tile_str[-1])
-            for tile_str in counts.keys()
-            if counts[tile_str] >= 3
-        ])
+        triples = len(
+            [
+                Tile(tile_str[:-1], tile_str[-1])
+                for tile_str in counts.keys()
+                if counts[tile_str] >= 3
+            ]
+        )
 
-        pairs = len([
-            Tile(tile_str[:-1], tile_str[-1])
-            for tile_str in counts.keys()
-            if counts[tile_str] == 2 or counts[tile_str] == 4
-        ])
+        pairs = len(
+            [
+                Tile(tile_str[:-1], tile_str[-1])
+                for tile_str in counts.keys()
+                if counts[tile_str] == 2 or counts[tile_str] == 4
+            ]
+        )
 
         self.sort()
         seq = 0
         for tile in self.tiles:
             second = Tile(tile.suit_type, str(int(tile.value) + 1))
             third = Tile(tile.suit_type, str(int(tile.value) + 2))
-            if (
-                self.contains(tile)
-                and self.contains(second)
-                and self.contains(third)
-            ):
+            if self.contains(tile) and self.contains(second) and self.contains(third):
                 seq += 1
-        
+
         # 10 is arbitrary
         score = (pairs + triples + seq) / 20
+
+        # self.print()
+        # print(score)
 
         if score > 1:
             raise ValueError("Invalid score:", score)

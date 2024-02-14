@@ -1,17 +1,17 @@
 import pandas as pd
 import numpy as np
 import os
-from base_game import main as base_game
+from v1.base_game import main as base_game
 import math
 from datetime import datetime
 import itertools
 import argparse
 import traceback
-    
+
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-# POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"] # "MCTS"]
+# POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM"]  # "MCTS"]
 POSSIBLE_AGENTS = ["MCTS"]
 
 
@@ -93,7 +93,7 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v1/{args.csv}.csv")
+    game_hist = pd.read_csv(f"{os.getcwd()}/v1/{args.csv}.csv")
 
     n = args.n
     save = args.save == "y"
@@ -113,7 +113,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v1/{args.csv}.csv", index=False
+                        os.getcwd() + "/" + f"/v1/{args.csv}.csv", index=False
                     )
             except Exception as e:
                 print(e)
@@ -140,6 +140,7 @@ def main():
             print(
                 f"{agent} win rate: {round(wins[agent][0]/wins[agent][1] * 100, 2)}% ({wins[agent][0]} of {wins[agent][1]} games played)"
             )
+
 
 if __name__ == "__main__":
     main()

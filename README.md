@@ -11,9 +11,11 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 3. Allow other players to keep playing after someone wins. The game will end when three players have won or when the wall is exhausted. Wall exhaustion scoring will also be implemented. Similarly to the second iteration, the agent will aim to maximise its win.
 
 ## Run the code on DCS Machines
+
 - `python3 code/v1/metrics.py -n <number-of-games> -save <y/n> -csv <filename> -completed <number-of-completed-games-required-for-mcts>`
 
 ### Batch compute on DCS
+
 - `sbatch dcs.sbatch`
 - `sacct --format JobId,State,MaxRSS,Elapsed,CPUTime,Start,End,Reason`
 - `seff <job-id`
@@ -41,12 +43,14 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 
 ## Notes
 
-**BUG:** MCTS agent mostly discarding the tile it just picked up.
-Win rate generally is very low (~6%?) so it means many of the options have the same weights. Explains the bad performance of the agent. Might make sense to pick from a narrowed down list of possible discards so more simulations are run on "better" discards? Still need to understand though if there is something that means the tile that just got picked up is more likely to be picked. 
+**BUG (14.02.2024 update: to be reviewed again if this still happens):** MCTS agent mostly discarding the tile it just picked up.
+Win rate generally is very low (~6%?) so it means many of the options have the same weights. Explains the bad performance of the agent. Might make sense to pick from a narrowed down list of possible discards so more simulations are run on "better" discards? Still need to understand though if there is something that means the tile that just got picked up is more likely to be picked.
 
-**BUG:** MCTS fails sometimes - search hits a point where not terminal node but has no children
+**BUG (14.02.2024):** Sometimes after PENG players end up with 16 tiles - adding tiles to the wrong player but why?
 
-**BUG:** Sometimes after PENG players end up with 16 tiles
+**BUG (14.02.2024):** Bug where tiles of unwanted suit is still showing in the player's hand. Not sure why this is happening. Previously thought this was because the unwanted suit was changing when mcts was initiated. Possibly this wasn't completely fixed? But could also be due to another reason? The games run without issues when it's only rule-based agents so the issue must lie in some part of the mcts implementation.
+
+- Agent is back to playing fixed number of simulations instead of number of games that have a winner.
 
 ### Runtimes
 
