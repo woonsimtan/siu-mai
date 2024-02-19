@@ -1,2 +1,0 @@
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** JOB 781502 ON emu-01 CANCELLED AT 2024-02-19T17:01:38 ***
