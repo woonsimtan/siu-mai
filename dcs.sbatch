@@ -16,4 +16,4 @@ source /etc/profile.d/conda.sh
 
 ## Execute your program(s) ##
 ## A Python program
-srun python3 /dcs/21/u2011915/siu-mai/code/v1/metrics.py -save y -n 25 -sim 100
+srun python3 /dcs/21/u2011915/siu-mai/code/v1/metrics.py -save y -n 100 -completed 1000 -csv game_history_hand_score_1000

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import random
-from v1.tiles import *
-from v1.mcts import MonteCarloTreeSearchNode
+from tiles import *
+from mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):

@@ -1,6 +1,6 @@
-from v1.tiles import *
+from tiles import *
 from copy import deepcopy
-from v1.players import SemiRandomAgent
+from players import SemiRandomAgent
 import pdb
 
 

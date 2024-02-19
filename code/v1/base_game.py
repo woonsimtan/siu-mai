@@ -1,9 +1,9 @@
-from v1.tiles import *
+from tiles import *
 from datetime import datetime
 
-from v1.players import *
+from players import *
 import pandas as pd
-from v1.game_state import *
+from game_state import *
 
 
 # fixed values
