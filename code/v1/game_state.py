@@ -1,6 +1,7 @@
-from tiles import *
+from v1.tiles import *
 from copy import deepcopy
-from players import SemiRandomAgent
+from v1.players import SemiRandomAgent
+import pdb
 
 
 class GameState:
@@ -58,10 +59,17 @@ class GameState:
     def game_result(self, maximising_player):
         if self.any_wins(DUMMY_TILE) == maximising_player:
             return 1
-        elif self.any_wins(DUMMY_TILE) == -1:
-            return 0
-        else:
+        elif self.any_wins(DUMMY_TILE) != -1:
             return -1
+        else:
+            scores = [p.all_tiles().hand_score(p.unwanted_suit) for p in self._players]
+            max_player_score = scores.pop(maximising_player)
+            # option 1: take the highest of other player's score
+            other_score = max(scores)
+            # print(max_player_score - other_score)
+            # # option 2: take the average of the other player's score
+            # other_score = sum(scores) / len(scores)
+            return max_player_score - other_score
 
     def ended(self):
         if self.deck.size() == 0:
@@ -104,7 +112,9 @@ class GameState:
                     newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
                 players.append(
                     SemiRandomAgent(
-                        newly_assigned_tiles, self._players[i].displayed_tiles
+                        newly_assigned_tiles,
+                        self._players[i].displayed_tiles,
+                        self._players[i].unwanted_suit,
                     )
                 )
 
@@ -189,7 +199,10 @@ class GameState:
         # return new game state
         return GameState(
             deck,
-            players_copy,
+            players_copy,  # why does this instead of players mean that there isn't a problem of the peng being added to the wrong player?
+            # does it mean actually it's still adding peng to the wrong player?
+            # and i'm not seeing it because i'm doing this step?
+            # is that why players end up with unwanted suit in their displayed/locked tiles?
             discarded_tiles,
             last_discarded,
             current_player_number,

@@ -1,9 +1,9 @@
-from tiles import *
+from v1.tiles import *
 from datetime import datetime
 
-from players import *
+from v1.players import *
 import pandas as pd
-from game_state import *
+from v1.game_state import *
 
 
 # fixed values
@@ -85,15 +85,17 @@ def main(player_types, completed_games, print_output=False):
 
     state = GameState(deck, all_players)
 
-    # print initial game state
-    state.print()
+    # # print initial game state
+    # state.print()
 
     # gameplay
     while not state.ended():
         state = state.next_game_state()
+        for p in all_players:
+            p.all_tiles().hand_score(p.unwanted_suit)
 
-    # end of game output
-    state.print()
+    # # end of game output
+    # state.print()
     return end_of_game_output(state, print_output)
 
 
@@ -102,6 +104,7 @@ def review():
     agents = ["MCTS", "SEMIRANDOM", "SEMIRANDOM", "SEMIRANDOM"]
     main(agents, True)
     print(f"Game took {datetime.now() - startTime} to run.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,21 +1,28 @@
 from abc import ABC, abstractmethod
 import random
-from tiles import *
-from mcts import MonteCarloTreeSearchNode
+from v1.tiles import *
+from v1.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
-    def __init__(self, possible_discards, displayed_tiles=TileList([])):
+    def __init__(
+        self, possible_discards, displayed_tiles=TileList([]), unwanted_suit=None
+    ):
         self._displayed_tiles = displayed_tiles
         self._possible_discards = possible_discards
-        
-        tiles_by_suit = self.possible_discards.get_tiles_by_suit()
-        unwanted = list(tiles_by_suit.keys())[0]
-        for suit in tiles_by_suit.keys():
-            if tiles_by_suit[suit].size() < tiles_by_suit[unwanted].size():
-                unwanted = suit
 
-        self.unwanted_suit = unwanted
+        if unwanted_suit is None:
+
+            tiles_by_suit = self.possible_discards.get_tiles_by_suit()
+            unwanted = list(tiles_by_suit.keys())[0]
+            for suit in tiles_by_suit.keys():
+                if tiles_by_suit[suit].size() < tiles_by_suit[unwanted].size():
+                    unwanted = suit
+                elif tiles_by_suit[suit].size() == tiles_by_suit[unwanted].size():
+                    unwanted = random.choice([suit, unwanted])
+            self.unwanted_suit = unwanted
+        else:
+            self.unwanted_suit = unwanted_suit
 
     @property
     def displayed_tiles(self):
@@ -65,8 +72,15 @@ class Player(ABC):
 
     def discard(self, game_state=None):
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
-        if self.unwanted_suit not in tiles_by_suit.keys():
-            return self._possible_discards.remove_random_tile()
+        if tiles_by_suit[self.unwanted_suit].size() == 0:
+            try:
+                return self._possible_discards.remove_random_tile()
+            except:
+                print(self.unwanted_suit)
+                self._displayed_tiles.print()
+                self._possible_discards.print()
+                self.all_tiles().print()
+                raise ValueError("Random discard failed")
         else:
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
@@ -87,8 +101,10 @@ class RandomAgent(Player):
 
 
 class SemiRandomAgent(Player):
-    def __init__(self, possible_discards, displayed_tiles=TileList([])):
-        super().__init__(possible_discards, displayed_tiles)
+    def __init__(
+        self, possible_discards, displayed_tiles=TileList([]), unwanted_suit=None
+    ):
+        super().__init__(possible_discards, displayed_tiles, unwanted_suit)
         self._pair = TileList([])
         self._locked_tiles = TileList([])
 
@@ -140,7 +156,9 @@ class SemiRandomAgent(Player):
                     and self.possible_discards.contains(second)
                     and self.possible_discards.contains(third)
                 ):
-                    self._possible_discards.remove_tiles(TileList([tile, second, third]))
+                    self._possible_discards.remove_tiles(
+                        TileList([tile, second, third])
+                    )
                     self._locked_tiles.add_tiles(TileList([tile, second, third]))
 
     def lock_triples(self):
@@ -171,14 +189,16 @@ class MCTSAgent(Player):
     def discard(self, game_state):
 
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
-        if self.unwanted_suit in tiles_by_suit.keys():
+        if tiles_by_suit[self.unwanted_suit].size() > 0:
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
             return tile
         else:
             # create state for mcts
             # print("initialised with current player: ", game_state._current_player_number)
-            root = MonteCarloTreeSearchNode(game_state.initialise_mcts_state(), self.simulations_to_run)
+            root = MonteCarloTreeSearchNode(
+                game_state.initialise_mcts_state(), self.simulations_to_run
+            )
             selected_node = root.best_action()
 
             if selected_node == -1:
