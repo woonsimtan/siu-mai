@@ -57,19 +57,26 @@ class GameState:
             )
 
     def game_result(self, maximising_player):
-        if self.any_wins(self._last_discarded) == maximising_player:
-            return 1
-        elif self.any_wins(self._last_discarded) != -1:
-            return -1
+
+        if self.any_wins(DUMMY_TILE) == maximising_player:
+            return self._players[maximising_player].win_score(self.deck.size() == 0)
+        elif self.any_wins(DUMMY_TILE) != -1:
+            return - self._players[self.any_wins(DUMMY_TILE)].win_score(self.deck.size() == 0)
+
+        # for win scoring, if no one has won: 
+        # option 1: take hand score
         else:
             scores = [p.all_tiles().hand_score(p.unwanted_suit) for p in self._players]
-            player_score = scores.pop(maximising_player)
+            max_player_score = scores.pop(maximising_player)
             # option 1: take the highest of other player's score
             other_score = max(scores)
-            # print(max_player_score - other_score)
             # # option 2: take the average of the other player's score
             # other_score = sum(scores) / len(scores)
-            return player_score - other_score
+            return max_player_score - other_score
+        # # option 2: result = 0
+        # # weights are too much just 0
+        # else:
+        #     return 0
 
     def ended(self):
         if self.deck.size() == 0:
@@ -88,7 +95,7 @@ class GameState:
         else:
             if self.any_peng() == p:
                 actions.append(["PENG"])
-                actions.append(["PASS"])  # and "PASS"
+                actions.append(["PASS"]) 
             else:
                 actions.append(["PICKUP"])
         return actions
@@ -200,7 +207,8 @@ class GameState:
         # return new game state
         return GameState(
             deck,
-            players_copy,  # why does this instead of players mean that there isn't a problem of the peng being added to the wrong player?
+            players_copy,  
+            # why does this instead of players mean that there isn't a problem of the peng being added to the wrong player?
             # does it mean actually it's still adding peng to the wrong player?
             # and i'm not seeing it because i'm doing this step?
             # is that why players end up with unwanted suit in their displayed/locked tiles?

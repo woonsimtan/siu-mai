@@ -95,6 +95,78 @@ class Player(ABC):
     def is_mcts(self):
         return False
 
+    def win_score(self, deck_empty, tile=None):
+        # should this be taking discarded tile
+
+        hand = self.all_tiles()
+
+        # doesn't need unwanted suit because needs to have won before calculating win score
+
+        # basic fan = 0 -> 1 point for winning
+        fan = 0
+
+        # root (using 4 identical tiles) - 1 fan for each set
+        counts = hand.tile_counts()
+        for c in counts.values():
+            if c >= 4:
+                fan += 1
+
+        # all pengs (4 sets of pengs) - 1 fan
+        pengs = 0
+        pairs = 0
+        for c in counts.values():
+            if c == 3:
+                pengs += 1
+            elif c == 2:
+                pairs += 1
+
+        if pengs == 4 or (pengs == 3 and pairs == 2):
+            fan += 1
+        
+        # golden single wait (4 sets of declared pengs and waiting for a pair) - 1 fan
+        displayed_counts = self.displayed_tiles.tile_counts()
+        displayed_pengs = 0
+        for c in displayed_counts.values():
+            if c == 3:
+                displayed_pengs += 1
+        if displayed_pengs == 4:
+            fan += 1
+
+        # full flush (all tiles from 1 suit) - 2 fan
+        suits = hand.get_tiles_by_suit()
+        for suit in suits.values():
+            if suit.size() == 14 or suit.size() == 13:
+                fan += 2
+
+        # 7 pairs - 2 fan
+        copy = hand.copy()
+        if tile is not None and tile != DUMMY_TILE:
+            copy.add(tile)
+
+        counts = copy.tile_counts()
+        pairs = 0
+        for c in counts.values():
+            if c == 2:
+                pairs += 1
+            elif c == 4:
+                pairs += 2
+        if pairs == 7:
+            fan += 2
+
+        # under the sea (winning by self draw on last tile or by discard after the last tile) - 1 fan
+        if deck_empty:
+            fan += 1
+
+        # self draw - 1 fan
+        if hand.size() == 14:
+            fan += 1
+
+        # 3 fan is max 
+        # (but maybe should remove this? larger scores might give mcts better results)
+        if fan > 3:
+            fan = 3
+
+        return 2 ** fan
 
 
 class RandomAgent(Player):

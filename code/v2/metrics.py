@@ -13,8 +13,8 @@ import time
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
 # POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM", "MCTS"]
-POSSIBLE_AGENTS = ["MCTS", "SEMIRANDOM"]
 # POSSIBLE_AGENTS = ["MCTS"]
+POSSIBLE_AGENTS = ["SEMIRANDOM", "MCTS"]
 
 
 def add_to_wins(row):
@@ -99,7 +99,7 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v1/{args.csv}.csv")
+    game_hist = pd.read_csv(f"{os.getcwd()}/code/v2/{args.csv}.csv")
 
     n = args.n
     save = args.save == "y"
@@ -119,7 +119,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v1/{args.csv}.csv", index=False
+                        os.getcwd() + "/" + f"code/v2/{args.csv}.csv", index=False
                     )
             except Exception as e:
                 print(e)

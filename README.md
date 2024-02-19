@@ -16,9 +16,10 @@ The objective of this project is to develop an agent to play Mahjong using Monte
 
 ### Batch compute on DCS
 
-- `sbatch dcs.sbatch`
-- `sacct --format JobId,State,MaxRSS,Elapsed,CPUTime,Start,End,Reason`
-- `seff <job-id`
+- `sbatch dcs.sbatch` to send a job
+- `sacct --format JobId,State,MaxRSS,Elapsed,CPUTime,Start,End,Reason` to see submitted jobs
+- `seff <job-id>` to see details of individual job
+- `scancel <job-id>` to kill the job
 
 ## Run the code on own laptop
 
