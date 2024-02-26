@@ -49,6 +49,9 @@ def setup_players(player_type_list, tiles, simulations):  # pragma: no cover
         elif player_type_list[i] == "SEMIRANDOM":
             player = SemiRandomAgent(tiles[i])
             players.append(player)
+        elif player_type_list[i] == "HANDSCORE":
+            player = HandScoreAgent(tiles[i])
+            players.append(player)
     return players
 
 

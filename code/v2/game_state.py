@@ -58,11 +58,15 @@ class GameState:
 
     def game_result(self, maximising_player):
 
-        if self.any_wins(DUMMY_TILE) == maximising_player:
-            return self._players[maximising_player].win_score(self.deck.size() == 0)
-        elif self.any_wins(DUMMY_TILE) != -1:
-            return - self._players[self.any_wins(DUMMY_TILE)].win_score(self.deck.size() == 0)
+        # if self.any_wins(DUMMY_TILE) == maximising_player:
+        #     return self._players[maximising_player].win_score(self.deck.size() == 0)
+        # elif self.any_wins(DUMMY_TILE) != -1:
+        #     return - self._players[self.any_wins(DUMMY_TILE)].win_score(self.deck.size() == 0)
 
+        if self.any_wins(self._last_discarded) == maximising_player:
+            return self._players[maximising_player].win_score(self.deck.size() == 0)
+        elif self.any_wins(self._last_discarded) != -1:
+            return - self._players[self.any_wins(self._last_discarded)].win_score(self.deck.size() == 0)
         # for win scoring, if no one has won: 
         # option 1: take hand score
         else:

@@ -172,6 +172,21 @@ class Player(ABC):
 class RandomAgent(Player):
     pass
 
+class HandScoreAgent(Player):
+    def discard(self, game_state=None):
+        score = 0
+        position = 0
+        for i in range(self.possible_discards.size()):
+            copy = self.possible_discards.copy()
+            copy.remove(self.possible_discards.tiles[i])
+            if copy.hand_score(self.unwanted_suit) > score:
+                score = copy.hand_score(self.unwanted_suit)
+                position = i
+        tile = self.possible_discards.tiles[position]
+        self._possible_discards.remove(tile)
+        return tile
+
+
 
 class SemiRandomAgent(Player):
     def __init__(

@@ -49,7 +49,7 @@ Win rate generally is very low (~6%?) so it means many of the options have the s
 
 **BUG (14.02.2024):** Sometimes after PENG players end up with 16 tiles - adding tiles to the wrong player but why?
 
-**BUG (14.02.2024):** Bug where tiles of unwanted suit is still showing in the player's hand. Not sure why this is happening. Previously thought this was because the unwanted suit was changing when mcts was initiated. Possibly this wasn't completely fixed? But could also be due to another reason? The games run without issues when it's only rule-based agents so the issue must lie in some part of the mcts implementation.
+**FIXED - BUG (14.02.2024):** Bug where tiles of unwanted suit is still showing in the player's hand. Not sure why this is happening. Previously thought this was because the unwanted suit was changing when mcts was initiated. Possibly this wasn't completely fixed? But could also be due to another reason? The games run without issues when it's only rule-based agents so the issue must lie in some part of the mcts implementation.
 
 - Agent is back to playing fixed number of simulations instead of number of games that have a winner.
 

@@ -12,15 +12,14 @@ import time
 
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
-# POSSIBLE_AGENTS = ["RANDOM", "SEMIRANDOM", "MCTS"]
-# POSSIBLE_AGENTS = ["MCTS"]
-POSSIBLE_AGENTS = ["SEMIRANDOM", "MCTS"]
+POSSIBLE_AGENTS = {"m": "MCTS", "s": "SEMIRANDOM", "r": "RANDOM", "h": "HANDSCORE"}
+
 
 
 def add_to_wins(row):
     # select random player for each agent type
     players = {}
-    for p in POSSIBLE_AGENTS:
+    for p in POSSIBLE_AGENTS.values():
         players[p] = []
 
     for i in range(4):
@@ -44,16 +43,20 @@ def add_to_wins(row):
 
 
 def win_rate(data):
-    for agent in POSSIBLE_AGENTS:
+    for agent in POSSIBLE_AGENTS.values():
         wins[agent] = [0, 0]  # games won, games played
 
     data.apply(lambda x: add_to_wins(x), axis=1)
 
 
-def generate_player_combinations():
-    combs = list(itertools.combinations_with_replacement(POSSIBLE_AGENTS, 4))
-    list_ver = [list(comb) for comb in combs]
-    return list_ver
+def generate_player_combinations(agent_input):
+    if agent_input == "all":
+        combs = list(itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4))
+        list_ver = [list(comb) for comb in combs]
+        return list_ver
+    else:
+        # process input string
+        return [[POSSIBLE_AGENTS[i] for i in agent_input.split(",")]]
 
 
 def parse_arguments():
@@ -86,6 +89,13 @@ def parse_arguments():
         required=False,
         default="game_history",
     )
+    parser.add_argument(
+        "-agents",
+        help="combination of agents to play",
+        type=str,
+        required=False,
+        default="all",
+    )
     return parser.parse_args()
 
 
@@ -103,14 +113,14 @@ def main():
 
     n = args.n
     save = args.save == "y"
-    player_types = generate_player_combinations()
+    player_types = generate_player_combinations(args.agents)
 
     k = len(game_hist)
     failed_games = 0
 
     for p in player_types:
         for i in range(n):
-            print(f"Game {i + player_types.index(p) * n} played")
+            print(f"Game {i + player_types.index(p) * n} played: {p}")
             try:
                 winning_player = base_game(p, args.completed, True)
                 game_n = len(game_hist)
@@ -141,7 +151,7 @@ def main():
 
     win_rate(game_hist)
 
-    for agent in POSSIBLE_AGENTS:
+    for agent in POSSIBLE_AGENTS.values():
         if wins[agent][1] != 0:
             print(
                 f"{agent} win rate: {round(wins[agent][0]/wins[agent][1] * 100, 2)}% ({wins[agent][0]} of {wins[agent][1]} games played)"
