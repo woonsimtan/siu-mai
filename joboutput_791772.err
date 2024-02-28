@@ -1,0 +1,4 @@
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** JOB 791772 ON emu-01 CANCELLED AT 2024-02-28T14:18:02 DUE TO TIME LIMIT ***
+slurmstepd: error: *** STEP 791772.0 ON emu-01 CANCELLED AT 2024-02-28T14:18:02 DUE TO TIME LIMIT ***
+srun: error: emu-01: task 0: Terminated

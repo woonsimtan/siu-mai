@@ -1,0 +1,4 @@
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 794826.0 ON emu-01 CANCELLED AT 2024-02-28T16:14:33 ***
+slurmstepd: error: *** JOB 794826 ON emu-01 CANCELLED AT 2024-02-28T16:14:33 ***
+srun: error: emu-01: task 0: Terminated

@@ -109,7 +109,7 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v2/{args.csv}.csv")
+    game_hist = pd.read_csv(f"{os.getcwd()}/code/v2/data/{args.csv}.csv")
 
     n = args.n
     save = args.save == "y"
@@ -129,7 +129,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v2/{args.csv}.csv", index=False
+                        os.getcwd() + "/" + f"code/v2/data/{args.csv}.csv", index=False
                     )
             except Exception as e:
                 print(e)
