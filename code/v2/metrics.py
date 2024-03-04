@@ -122,9 +122,9 @@ def main():
         for i in range(n):
             print(f"Game {i + player_types.index(p) * n} played: {p}")
             try:
-                winning_player = base_game(p, args.completed, True)
+                winning_player, winning_score = base_game(p, args.completed, True)
                 game_n = len(game_hist)
-                game_hist.loc[game_n] = [game_n, winning_player] + p
+                game_hist.loc[game_n] = [game_n, winning_player] + p + [winning_score]
 
                 if save:
                     # save data to files
