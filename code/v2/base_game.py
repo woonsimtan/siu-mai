@@ -62,21 +62,25 @@ def end_of_game_output(state, print_output):  # pragma: no cover
             p = state._current_player_number
             print(f"Player {p} has won by pickup")
             state._players[p].all_tiles().print()
+            winning_score = state._players[p].win_score(state.deck.size() == 0)
         else:
             p = float("NaN")
+            winning_score = float("NaN")
     elif state.any_wins(discard) != -1:
         p = state.any_wins(discard)
         state._players[p]._possible_discards.add(discard)
         if print_output:
             print(f"Player {p} has won from a discarded tile")
             state._players[p].all_tiles().print()
+        winning_score = state._players[p].win_score(state.deck.size() == 0)
     else:
         p = float("NaN")
+        winning_score = float("NaN")
         if print_output:
             print("No winner")
     if print_output:
         print("GAME ENDED")
-    return p
+    return p, winning_score
 
 
 def main(player_types, completed_games, print_output=False):
