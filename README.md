@@ -57,9 +57,10 @@ Win rate generally is very low (~6%?) so it means many of the options have the s
 
 4 MCTS Agents in a single game
 
-- 10 simulations -> 39s
-- 100 simulations -> 6 mins
-- 1000 simulations -> 1h
-- 10k simulations -> ~10h
+- 50 simulations -> ~8mins
+- 100 simulations -> ~15mins
+- 500 simulations -> ~1h20mins
+- 1000 simulations -> ~12h
+- 10k simulations -> ~48h
 
-Requires 25mins to run all combinations of agents, with some games failing and 10 simulations.
+

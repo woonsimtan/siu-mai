@@ -2,15 +2,13 @@ import pandas as pd
 import numpy as np
 import os
 from base_game import main as base_game
-import math
 from datetime import datetime
 import itertools
 import argparse
 import traceback
-import time
 
 
-wins = {}
+scores = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
 POSSIBLE_AGENTS = {"m": "MCTS", "s": "SEMIRANDOM", "r": "RANDOM", "h": "HANDSCORE"}
 
@@ -23,28 +21,25 @@ def add_to_wins(row):
         players[p] = []
 
     for i in range(4):
-        players[row[PLAYER_MAPPING[i]]].append(i)
+        players[row[f"{PLAYER_MAPPING[i]}_type"]].append(i)
 
     chosen = {}
     for key, value in players.items():
         if len(value) != 0:
             chosen[key] = players[key][np.random.randint(len(players[key]))]
 
-    # games played
+    # number of games played
     for p in chosen.keys():
-        wins[p][1] += 1
+        scores[p][1] += 1
 
-    # winner
-    if not math.isnan(row["winning_player"]):
-        winner = int(row["winning_player"])
-        for agent, chosen_player in chosen.items():
-            if chosen_player == winner:
-                wins[agent][0] += 1
+    # add score for selected player
+    for agent, chosen_player in chosen.items():
+        scores[agent][0] += row[f"player{chosen_player}_score"]
 
 
 def win_rate(data):
     for agent in POSSIBLE_AGENTS.values():
-        wins[agent] = [0, 0]  # games won, games played
+        scores[agent] = [0, 0]  # games won, games played
 
     data.apply(lambda x: add_to_wins(x), axis=1)
 
@@ -70,7 +65,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "-completed",
-        help="Number of completed games the MCTS agent is supposed to run",
+        help="Number of simulations the MCTS agent is supposed to run",
         type=int,
         required=False,
         default=10,
@@ -100,9 +95,6 @@ def parse_arguments():
 
 
 def main():
-
-    # wait for other tests to be set up and switch branches before running
-    # time.sleep(300)
 
     startTime = datetime.now()
 
@@ -149,13 +141,11 @@ def main():
         x = k - failed_games
         game_hist = game_hist[x:]
 
-    # win_rate(game_hist)
+    win_rate(game_hist)
 
-    # for agent in POSSIBLE_AGENTS.values():
-    #     if wins[agent][1] != 0:
-    #         print(
-    #             f"{agent} win rate: {round(wins[agent][0]/wins[agent][1] * 100, 2)}% ({wins[agent][0]} of {wins[agent][1]} games played)"
-    #         )
+    for agent in POSSIBLE_AGENTS.values():
+        if scores[agent][1] != 0:
+            print(f"{agent} average score: {round(scores[agent][0]/scores[agent][1], 2)}")
 
 
 if __name__ == "__main__":

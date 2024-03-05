@@ -208,6 +208,12 @@ class GameState:
             else:
                 players_copy.append(self._players[i])
 
+        # check for invalid number of tiles
+        for p in players_copy:
+            if (not game_end and p.all_tiles().size() != 13):
+                p.all_tiles().print()
+                raise ValueError(f"Player {players_copy.index(p)} has invalid number of tiles: {p.all_tiles().size()}")
+
         # return new game state
         return GameState(
             deck,
