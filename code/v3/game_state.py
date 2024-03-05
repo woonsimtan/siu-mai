@@ -1,6 +1,6 @@
-from tiles import *
+from v3.tiles import *
 from copy import deepcopy
-from players import *
+from v3.players import *
 import pdb
 from typing import List, Tuple
 
@@ -10,7 +10,7 @@ class GameState:
         self,
         deck: TileList,
         players: List[Player],
-        discarded_tiles:TileList = TileList([]),
+        discarded_tiles: TileList = TileList([]),
         last_discarded: Tile = DUMMY_TILE,
         current_player_number: int = 3,
     ):
@@ -74,17 +74,17 @@ class GameState:
         # if any player has won return the player's score
         if max(wins) > 0:
             return self._players[maximising_player].score
-        # if no one has won there are 2 options 
+        # if no one has won there are 2 options
         # option 1: take hand score relative to the other players
         else:
             scores = [p.all_tiles().hand_score(p.unwanted_suit) for p in self._players]
             max_player_score = scores.pop(maximising_player)
             # a) take the highest of other player's score
             other_score = max(scores)
-            # b) take the average of the other player's score
+            # # b) take the average of the other player's score
             # other_score = sum(scores) / len(scores)
             return max_player_score - other_score
-        # # option 2: return a neutral result 
+        # # option 2: return a neutral result
         # # (but this reduces the difference between weights of choices)
         # else:
         #     return 0
@@ -104,12 +104,12 @@ class GameState:
         actions = []
         p = self._current_player_number
         if self._players[p].get_hidden_tiles().size() % 3 == 2:
-            for tile in self._players[p].get_hidden_tiles().tiles:
+            for tile in self._players[p].possible_discards.tiles:
                 actions.append(["DISCARD", tile])
         else:
             if self.any_peng() == p:
                 actions.append(["PENG"])
-                actions.append(["PASS"]) 
+                actions.append(["PASS"])
             else:
                 actions.append(["PICKUP"])
         return actions
@@ -130,7 +130,7 @@ class GameState:
                     SemiRandomAgent(
                         self._players[i].get_hidden_tiles(),
                         self._players[i].displayed_tiles,
-                        self._players[i].unwanted_suit
+                        self._players[i].unwanted_suit,
                     )
                 )
             else:
@@ -196,7 +196,7 @@ class GameState:
             discarded_tiles.add(last_discarded)
             current_player_number = (current_player_number + 1) % 4
             pickup_tile = deck.remove_random_tile()
-            
+
             # check for win from pickup tile
             if players[current_player_number].check_for_win(pickup_tile):
                 last_discarded = DUMMY_TILE
@@ -210,10 +210,10 @@ class GameState:
                     else:
                         players[i].score += score * 3
 
-                # update player 
+                # update player
                 players[current_player_number].win()
-                
-            else: 
+
+            else:
                 # add new tile to player's hand
                 players[current_player_number].pickup(pickup_tile)
 
@@ -221,9 +221,14 @@ class GameState:
         if (not no_discard and action is None) or (
             action is not None and action[0] == "DISCARD"
         ):
-            if players[current_player_number].is_mcts():
+            if action is not None:
                 last_discarded = players[current_player_number].discard(
-                    GameState(
+                    specified_tile=action[1]
+                )
+
+            elif players[current_player_number].is_mcts():
+                last_discarded = players[current_player_number].discard(
+                    game_state=GameState(
                         deck,
                         players,
                         discarded_tiles,
@@ -245,13 +250,12 @@ class GameState:
             last_discarded = DUMMY_TILE
             current_player_number = win
 
-            
         # check scores are valid
         scores = [p.score for p in players]
         if sum(scores) != 0:
             print(f"Scores: {scores}")
             raise ValueError("Scores do not sum to 0")
-        
+
         # return new game state
         return GameState(
             deck,

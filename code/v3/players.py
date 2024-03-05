@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 import random
-from tiles import *
-from mcts import MonteCarloTreeSearchNode
+from v3.tiles import *
+from v3.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
     def __init__(
-        self, possible_discards: TileList, displayed_tiles: TileList = TileList([]), unwanted_suit: str = None, score: int = 0
+        self,
+        possible_discards: TileList,
+        displayed_tiles: TileList = TileList([]),
+        unwanted_suit: str = None,
+        score: int = 0,
     ):
         self._displayed_tiles = displayed_tiles
         self._possible_discards = possible_discards
@@ -55,7 +59,7 @@ class Player(ABC):
     @property
     def locked_tiles(self):
         return self._locked_tiles.copy()
-    
+
     @locked_tiles.setter
     def locked_tiles(self, value):
         self._locked_tiles = value
@@ -100,10 +104,14 @@ class Player(ABC):
         self._displayed_tiles.add_tiles(l)
         self._possible_discards.remove_tiles(l)
 
-    def discard(self, game_state=None) -> Tile:
+    def discard(self, game_state=None, specified_tile: Tile = None) -> Tile:
         """
         Removes discard tile from player's hand and returns it
         """
+        if specified_tile is not None:
+            self._possible_discards.remove(specified_tile)
+            return specified_tile
+
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         # if no tiles in unwanted suit, discard random tile
         if tiles_by_suit[self.unwanted_suit].size() == 0:
@@ -136,7 +144,7 @@ class Player(ABC):
     def is_mcts(self) -> bool:
         return False
 
-    def win_score(self, deck_empty: bool, tile:Tile =None) -> int:
+    def win_score(self, deck_empty: bool, tile: Tile = None) -> int:
         """
         Takes a winning hand and calculates its score
         """
@@ -162,7 +170,7 @@ class Player(ABC):
 
         if pengs == 4 or (pengs == 3 and pairs == 2):
             fan += 1
-        
+
         # golden single wait (4 sets of declared pengs and waiting for a pair) - 1 fan
         displayed_counts = self.displayed_tiles.tile_counts()
         displayed_pengs = 0
@@ -201,39 +209,47 @@ class Player(ABC):
         if hand.size() == 14:
             fan += 1
 
-        # 3 fan is max 
+        # 3 fan is max
         # (but maybe should remove this? larger scores might give mcts better results)
         if fan > 3:
             fan = 3
 
-        return 2 ** fan
+        return 2**fan
 
 
 class RandomAgent(Player):
     pass
 
+
 class HandScoreAgent(Player):
-    def discard(self, game_state=None) -> Tile:
+    def discard(self, game_state=None, specified_tile: Tile = None) -> Tile:
         """
         Selects a discard tile that leaves a hand with the highest hand score
         """
-        score = 0
-        position = 0
-        for i in range(self.possible_discards.size()):
-            copy = self.possible_discards.copy()
-            copy.remove(self.possible_discards.tiles[i])
-            if copy.hand_score(self.unwanted_suit) > score:
-                score = copy.hand_score(self.unwanted_suit)
-                position = i
-        tile = self.possible_discards.tiles[position]
-        self._possible_discards.remove(tile)
-        return tile
-
+        if specified_tile is not None:
+            self._possible_discards.remove(specified_tile)
+            return specified_tile
+        else:
+            score = 0
+            position = 0
+            for i in range(self.possible_discards.size()):
+                copy = self.possible_discards.copy()
+                copy.remove(self.possible_discards.tiles[i])
+                if copy.hand_score(self.unwanted_suit) > score:
+                    score = copy.hand_score(self.unwanted_suit)
+                    position = i
+            tile = self.possible_discards.tiles[position]
+            self._possible_discards.remove(tile)
+            return tile
 
 
 class SemiRandomAgent(Player):
     def __init__(
-        self, possible_discards, displayed_tiles=TileList([]), unwanted_suit=None, score = 0
+        self,
+        possible_discards,
+        displayed_tiles=TileList([]),
+        unwanted_suit=None,
+        score=0,
     ):
         super().__init__(possible_discards, displayed_tiles, unwanted_suit, score)
         self._pair = TileList([])
@@ -241,7 +257,7 @@ class SemiRandomAgent(Player):
     @property
     def pair(self):
         return self._pair.copy()
-    
+
     def win(self) -> None:
         """
         Shifts tiles to be locked when player wins for the first time and increments the number of times the player has won.
@@ -318,7 +334,6 @@ class SemiRandomAgent(Player):
         self.lock_three_of_a_kind()
         self.lock_three_consecutive()
 
-
     def lock_pair(self) -> None:
         """
         Locks tiles that form a pair, selecting one at random if there are multiple pairs
@@ -338,8 +353,14 @@ class SemiRandomAgent(Player):
 
 
 class MCTSAgent(Player):
-    def __init__(self, possible_discards: TileList, player_number: int, simulations: int, agent_score:int = 0):
-        super().__init__(possible_discards, score = agent_score)
+    def __init__(
+        self,
+        possible_discards: TileList,
+        player_number: int,
+        simulations: int,
+        agent_score: int = 0,
+    ):
+        super().__init__(possible_discards, score=agent_score)
         self.player_number = player_number
         self.simulations_to_run = simulations
 

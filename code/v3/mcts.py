@@ -12,39 +12,27 @@ class MonteCarloTreeSearchNode:
         self.children = []
         self._number_of_visits = 0
         self._results = 0
-        # self._results = defaultdict(int)
-        # self._results[1] = 0
-        # self._results[-1] = 0
         self._untried_actions = self.untried_actions()
         self.maximising_player = state._current_player_number
         return
 
     def untried_actions(self):
-        # print("UNTRIED ACTIONS CALLED")
         self._untried_actions = self.state.get_legal_actions()
         return self._untried_actions
 
     def q(self):
-        # wins = self._results[1]
-        # loses = self._results[-1]
-        # q_value = wins - loses
-        # return q_value
         return self._results
 
     def n(self):
         return self._number_of_visits
 
     def expand(self):
-        # pdb.set_trace()
-        # Variables to check: self.state, action, self._untried_actions
         action = self._untried_actions.pop()
         next_state = self.move(action)
         child_node = MonteCarloTreeSearchNode(
             next_state, self.completed_games, parent=self, parent_action=action
         )
         self.children.append(child_node)
-        # pdb.set_trace()
-        # Variables to check: self.state, action, self._untried_actions
         return child_node
 
     def is_terminal_node(self):
@@ -54,42 +42,25 @@ class MonteCarloTreeSearchNode:
         current_rollout_state = self.state
         while not current_rollout_state.ended():
             possible_moves = current_rollout_state.get_legal_actions()
-
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.next_game_state(action)
         return current_rollout_state.game_result(self.maximising_player)
 
     def backpropagate(self, result):
-        # pdb.set_trace()  # Breakpoint
-        # Check the result being backpropagated and the current node's visit count and results
-        # Variables to check: result, self._number_of_visits, self._results
         self._number_of_visits += 1.0
-        # self._results[result] += 1.0
         self._results += result
 
         if self.parent is not None:
             self.parent.backpropagate(result)
 
-        # pdb.set_trace()  # Breakpoint
-        # Check the result being backpropagated and the current node's visit count and results
-        # Variables to check: result, self._number_of_visits, self._results
-        # print(self._results)
-
     def is_fully_expanded(self):
         return len(self._untried_actions) == 0
 
     def best_child(self, c_param=0.1):
-        # print("BEST CHILD CALLED")
         choices_weights = [
             (c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n()))
             for c in self.children
         ]
-
-        # print(choices_weights)
-
-        # pdb.set_trace()  # Breakpoint
-        # Check the result being backpropagated and the current node's visit count and results
-        # Variables to check: result, self._number_of_visits, self._results
 
         if len(choices_weights) == 0:
             return -1
@@ -118,31 +89,13 @@ class MonteCarloTreeSearchNode:
         return current_node
 
     def best_action(self):
-        for i in range(self.completed_games):  # simulation number
-            # limit_count = self.completed_games * 10
-            # i = 0
-            # while self._results[1] + self._results[-1] < self.completed_games and i < limit_count:
+        for i in range(self.completed_games):
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
             i += 1
 
-        # pdb.set_trace()
-        # print(self._number_of_visits, self._results)
         return self.best_child(c_param=0.0)  # value can (and should) be adjusted
-
-    def get_legal_actions(self):
-        actions = []
-        p = self.state._current_player_number
-        if self.state._players[p].get_hidden_tiles().size() % 3 == 2:
-            for tile in self.state._players[p].get_hidden_tiles().tiles:
-                actions.append(["DISCARD", tile])
-        else:
-            if self.state.any_peng() != -1:
-                actions.append(["PENG"])
-            actions.append(["PICKUP"])
-
-        return actions
 
     def is_game_over(self):
         return self.state.ended()

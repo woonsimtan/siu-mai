@@ -1,8 +1,8 @@
-from tiles import *
+from v3.tiles import *
 from datetime import datetime
 
-from players import *
-from game_state import *
+from v3.players import *
+from v3.game_state import *
 
 from typing import List, Tuple
 
@@ -38,7 +38,9 @@ def distribute_tiles(to_distribute: TileList) -> List[TileList]:
     return [TileList(tiles) for tiles in player_tiles]
 
 
-def setup_players(player_type_list: List[str], tiles: List[TileList], simulations: int) -> List[Player]:
+def setup_players(
+    player_type_list: List[str], tiles: List[TileList], simulations: int
+) -> List[Player]:
     players = []
     for i in range(4):
         if player_type_list[i] == "RANDOM":
@@ -53,7 +55,9 @@ def setup_players(player_type_list: List[str], tiles: List[TileList], simulation
     return players
 
 
-def end_of_game_output(state: GameState, print_output: bool) -> Tuple[List[int], List[int]]:  # pragma: no cover
+def end_of_game_output(
+    state: GameState, print_output: bool
+) -> Tuple[List[int], List[int]]:  # pragma: no cover
     scores = [player.score for player in state._players]
     wins = [player.times_won for player in state._players]
 

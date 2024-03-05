@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from base_game import main as base_game
+from v3.base_game import main as base_game
 from datetime import datetime
 import itertools
 import argparse
@@ -11,7 +11,6 @@ import traceback
 scores = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
 POSSIBLE_AGENTS = {"m": "MCTS", "s": "SEMIRANDOM", "r": "RANDOM", "h": "HANDSCORE"}
-
 
 
 def add_to_wins(row):
@@ -46,7 +45,9 @@ def win_rate(data):
 
 def generate_player_combinations(agent_input):
     if agent_input == "all":
-        combs = list(itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4))
+        combs = list(
+            itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4)
+        )
         list_ver = [list(comb) for comb in combs]
         return list_ver
     else:
@@ -101,7 +102,7 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v3/data/{args.csv}.csv")
+    game_hist = pd.read_csv(f"{os.getcwd()}/v3/data/{args.csv}.csv")
 
     n = args.n
     save = args.save == "y"
@@ -121,7 +122,7 @@ def main():
                 if save:
                     # save data to files
                     game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v3/data/{args.csv}.csv", index=False
+                        os.getcwd() + "/" + f"v3/data/{args.csv}.csv", index=False
                     )
             except Exception as e:
                 print(e)
@@ -145,7 +146,9 @@ def main():
 
     for agent in POSSIBLE_AGENTS.values():
         if scores[agent][1] != 0:
-            print(f"{agent} average score: {round(scores[agent][0]/scores[agent][1], 2)}")
+            print(
+                f"{agent} average score: {round(scores[agent][0]/scores[agent][1], 2)}"
+            )
 
 
 if __name__ == "__main__":
