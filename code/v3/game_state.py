@@ -13,12 +13,14 @@ class GameState:
         discarded_tiles: TileList = TileList([]),
         last_discarded: Tile = DUMMY_TILE,
         current_player_number: int = 3,
+        exhausted_tiles=TileList([]),
     ):
         self._deck = deck
         self._players = players.copy()
         self._discarded_tiles = discarded_tiles.copy()
         self._last_discarded = last_discarded.copy()
         self._current_player_number = current_player_number
+        self._exhausted_tiles = exhausted_tiles.copy()
 
     def print(self) -> None:
         """
@@ -122,31 +124,77 @@ class GameState:
         hidden_tiles = self.get_tiles_hidden_from_player()
 
         # reassign tiles
-        players = []
+        players = [0, 0, 0, 0]
+        # for current player initialise as a SemiRandomAgent with the same tiles
+        players[self._current_player_number] = SemiRandomAgent(
+            self._players[self._current_player_number].get_hidden_tiles(),
+            self._players[self._current_player_number].displayed_tiles,
+            self._players[self._current_player_number].unwanted_suit,
+            last_discarded=self._players[self._current_player_number].last_discarded,
+        )
+
         for i in range(4):
-            # initialise current player as a SemiRandomAgent with the same tiles
-            if i == self._current_player_number:
-                players.append(
-                    SemiRandomAgent(
-                        self._players[i].get_hidden_tiles(),
-                        self._players[i].displayed_tiles,
-                        self._players[i].unwanted_suit,
+            if i != self._current_player_number:
+                # guess the tiles of the players who have discarded tiles not of their unwanted suit
+                # (they have no tiles of their unwanted suit in their hand)
+                if (
+                    self._players[i].last_discarded.suit_type
+                    != self._players[i].unwanted_suit
+                ):
+                    newly_assigned_tiles = TileList([])
+
+                    hidden_subset = TileList(
+                        [
+                            tile
+                            for tile in hidden_tiles.tiles
+                            if tile.suit_type != self._players[i].unwanted_suit
+                        ]
                     )
-                )
-            else:
-                # guess the hidden tiles of the other players
-                # TODO: make better guesses
-                newly_assigned_tiles = TileList([])
-                for j in range(13 - self._players[i].displayed_tiles.size()):
-                    newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
-                # initialise other players as SemiRandomAgents with the same displayed tiles and unwanted suit
-                players.append(
-                    SemiRandomAgent(
+
+                    for j in range(
+                        min(
+                            self._players[i].get_hidden_tiles().size(),
+                            hidden_subset.size(),
+                        )
+                    ):
+                        newly_assigned_tiles.add(hidden_subset.remove_random_tile())
+
+                    # remove these tiles from hidden
+                    hidden_tiles.remove_tiles(newly_assigned_tiles)
+
+                    # if there are any issues default to blindly guessing
+                    for j in range(
+                        self._players[i].get_hidden_tiles().size()
+                        - newly_assigned_tiles.size()
+                    ):
+                        newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
+
+                    players[i] = SemiRandomAgent(
                         newly_assigned_tiles,
                         self._players[i].displayed_tiles,
                         self._players[i].unwanted_suit,
+                        last_discarded=self._players[i].last_discarded,
                     )
-                )
+
+        for i in range(4):
+            if i != self._current_player_number:
+                # guess the tiles of the players who have discarded tiles not of their unwanted suit
+                # (they have no tiles of their unwanted suit in their hand)
+                if (
+                    self._players[i].last_discarded.suit_type
+                    == self._players[i].unwanted_suit
+                ):
+                    newly_assigned_tiles = TileList([])
+
+                    for j in range(self._players[i].get_hidden_tiles().size()):
+                        newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
+
+                    players[i] = SemiRandomAgent(
+                        newly_assigned_tiles,
+                        self._players[i].displayed_tiles,
+                        self._players[i].unwanted_suit,
+                        last_discarded=self._players[i].last_discarded,
+                    )
 
         return GameState(
             hidden_tiles,
@@ -154,6 +202,7 @@ class GameState:
             self._discarded_tiles,
             self._last_discarded,
             self._current_player_number,
+            self._exhausted_tiles,
         )
 
     def get_tiles_hidden_from_player(self) -> TileList:
@@ -178,6 +227,7 @@ class GameState:
         current_player_number = self._current_player_number
         no_discard = False
         choose_peng = False
+        exhausted_tiles = self._exhausted_tiles.copy()
 
         # if a player can peng they should select if they carry out the action
         if self.any_peng() != -1:
@@ -201,6 +251,7 @@ class GameState:
             if players[current_player_number].check_for_win(pickup_tile):
                 last_discarded = DUMMY_TILE
                 no_discard = True
+                exhausted_tiles.add(pickup_tile)
 
                 # update scores
                 score = players[current_player_number].win_score(deck.size() == 0)
@@ -234,6 +285,7 @@ class GameState:
                         discarded_tiles,
                         last_discarded,
                         current_player_number,
+                        exhausted_tiles,
                     )
                 )
             else:
@@ -247,6 +299,7 @@ class GameState:
             players[current_player_number].score -= score
             players[win].win()
 
+            exhausted_tiles.add(last_discarded)
             last_discarded = DUMMY_TILE
             current_player_number = win
 
@@ -263,4 +316,5 @@ class GameState:
             discarded_tiles,
             last_discarded,
             current_player_number,
+            exhausted_tiles,
         )

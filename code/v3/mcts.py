@@ -4,8 +4,8 @@ import pdb
 
 
 class MonteCarloTreeSearchNode:
-    def __init__(self, state, completed_games, parent=None, parent_action=None):
-        self.completed_games = completed_games
+    def __init__(self, state, simulations, parent=None, parent_action=None):
+        self.simulations = simulations
         self.state = state
         self.parent = parent
         self.parent_action = parent_action
@@ -30,7 +30,7 @@ class MonteCarloTreeSearchNode:
         action = self._untried_actions.pop()
         next_state = self.move(action)
         child_node = MonteCarloTreeSearchNode(
-            next_state, self.completed_games, parent=self, parent_action=action
+            next_state, self.simulations, parent=self, parent_action=action
         )
         self.children.append(child_node)
         return child_node
@@ -89,7 +89,7 @@ class MonteCarloTreeSearchNode:
         return current_node
 
     def best_action(self):
-        for i in range(self.completed_games):
+        for i in range(self.simulations):
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)

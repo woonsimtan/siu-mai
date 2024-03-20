@@ -1,9 +1,9 @@
-from tiles import *
+from v1.tiles import *
 from datetime import datetime
 
-from players import *
+from v1.players import *
 import pandas as pd
-from game_state import *
+from v1.game_state import *
 
 
 # fixed values
@@ -79,12 +79,12 @@ def end_of_game_output(state, print_output):  # pragma: no cover
     return p
 
 
-def main(player_types, completed_games, print_output=False):
+def main(player_types, simulations, print_output=False):
 
     # initiate game state
     deck = create_tiles()
     player_tiles = distribute_tiles(deck)
-    all_players = setup_players(player_types, player_tiles, completed_games)
+    all_players = setup_players(player_types, player_tiles, simulations)
 
     state = GameState(deck, all_players)
 

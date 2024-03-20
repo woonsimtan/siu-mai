@@ -11,12 +11,14 @@ class Player(ABC):
         displayed_tiles: TileList = TileList([]),
         unwanted_suit: str = None,
         score: int = 0,
+        last_discarded: Tile = DUMMY_TILE,
     ):
         self._displayed_tiles = displayed_tiles
         self._possible_discards = possible_discards
         self.score = score
         self._locked_tiles = TileList([])
         self.times_won = 0
+        self.last_discarded = last_discarded
 
         if unwanted_suit is None:
             # pick suit with least tiles in hand
@@ -110,13 +112,15 @@ class Player(ABC):
         """
         if specified_tile is not None:
             self._possible_discards.remove(specified_tile)
+            self.last_discarded = specified_tile
             return specified_tile
 
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         # if no tiles in unwanted suit, discard random tile
         if tiles_by_suit[self.unwanted_suit].size() == 0:
             try:
-                return self._possible_discards.remove_random_tile()
+                self.last_discarded = self._possible_discards.remove_random_tile()
+                return self.last_discarded
             except:
                 print(self.unwanted_suit)
                 self._displayed_tiles.print()
@@ -128,6 +132,7 @@ class Player(ABC):
             # otherwise prioritise getting rid of tiles from unwanted suit
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
+            self.last_discarded = tile
             return tile
 
     def get_hidden_tiles(self) -> TileList:
@@ -228,6 +233,7 @@ class HandScoreAgent(Player):
         """
         if specified_tile is not None:
             self._possible_discards.remove(specified_tile)
+            self.last_discarded = specified_tile
             return specified_tile
         else:
             score = 0
@@ -240,6 +246,7 @@ class HandScoreAgent(Player):
                     position = i
             tile = self.possible_discards.tiles[position]
             self._possible_discards.remove(tile)
+            self.last_discarded = tile
             return tile
 
 
@@ -250,8 +257,11 @@ class SemiRandomAgent(Player):
         displayed_tiles=TileList([]),
         unwanted_suit=None,
         score=0,
+        last_discarded=DUMMY_TILE,
     ):
-        super().__init__(possible_discards, displayed_tiles, unwanted_suit, score)
+        super().__init__(
+            possible_discards, displayed_tiles, unwanted_suit, score, last_discarded
+        )
         self._pair = TileList([])
 
     @property
@@ -359,8 +369,11 @@ class MCTSAgent(Player):
         player_number: int,
         simulations: int,
         agent_score: int = 0,
+        last_discarded: Tile = DUMMY_TILE,
     ):
-        super().__init__(possible_discards, score=agent_score)
+        super().__init__(
+            possible_discards, score=agent_score, last_discarded=last_discarded
+        )
         self.player_number = player_number
         self.simulations_to_run = simulations
 

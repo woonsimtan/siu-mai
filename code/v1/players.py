@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import random
-from tiles import *
-from mcts import MonteCarloTreeSearchNode
+from v1.tiles import *
+from v1.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
@@ -70,7 +70,16 @@ class Player(ABC):
         self._displayed_tiles.add_tiles(l)
         self._possible_discards.remove_tiles(l)
 
-    def discard(self, game_state=None):
+    def discard(self, game_state=None, specified_tile=None):
+        if specified_tile is not None:
+            if self._possible_discards.contains(specified_tile):
+                self._possible_discards.remove(specified_tile)
+                return specified_tile
+            else:
+                self.possible_discards.print()
+                specified_tile.print()
+                raise ValueError("Specified tile not in hand")
+
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         if tiles_by_suit[self.unwanted_suit].size() == 0:
             try:
@@ -96,12 +105,17 @@ class Player(ABC):
         return False
 
 
-
 class RandomAgent(Player):
     pass
 
+
 class HandScoreAgent(Player):
-    def discard(self, game_state=None):
+    def discard(self, game_state=None, specified_tile: Tile = None):
+        if specified_tile is not None:
+            self._possible_discards.remove(specified_tile)
+            self.last_discarded = specified_tile
+            return specified_tile
+
         score = 0
         position = 0
         for i in range(self.possible_discards.size()):

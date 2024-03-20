@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from base_game import main as base_game
+from v1.base_game import main as base_game
 import math
 from datetime import datetime
 import itertools
@@ -13,7 +13,6 @@ import time
 wins = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
 POSSIBLE_AGENTS = {"m": "MCTS", "s": "SEMIRANDOM", "r": "RANDOM", "h": "HANDSCORE"}
-
 
 
 def add_to_wins(row):
@@ -51,7 +50,9 @@ def win_rate(data):
 
 def generate_player_combinations(agent_input):
     if agent_input == "all":
-        combs = list(itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4))
+        combs = list(
+            itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4)
+        )
         list_ver = [list(comb) for comb in combs]
         return list_ver
     else:
@@ -69,8 +70,8 @@ def parse_arguments():
         default=0,
     )
     parser.add_argument(
-        "-completed",
-        help="Number of completed games the MCTS agent is supposed to run",
+        "-sim",
+        help="Number of simulations the MCTS agent is supposed to run",
         type=int,
         required=False,
         default=10,
@@ -109,8 +110,21 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v1/data/{args.csv}.csv")
+    csv_filepath = f"{os.getcwd()}/v1/data/game_history_{args.agents.replace(',', '')}_{args.sim}.csv"
 
+    if os.path.exists(csv_filepath):
+        game_hist = pd.read_csv(csv_filepath)
+    else:
+        game_hist = pd.DataFrame(
+            columns=[
+                "game",
+                "winning_player",
+                "player0",
+                "player1",
+                "player2",
+                "player3",
+            ]
+        )
     n = args.n
     save = args.save == "y"
     player_types = generate_player_combinations(args.agents)
@@ -122,15 +136,14 @@ def main():
         for i in range(n):
             print(f"Game {i + player_types.index(p) * n} played: {p}")
             try:
-                winning_player = base_game(p, args.completed, True)
+                winning_player = base_game(p, args.sim, True)
                 game_n = len(game_hist)
                 game_hist.loc[game_n] = [game_n, winning_player] + p
 
                 if save:
                     # save data to files
-                    game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v1/data/{args.csv}.csv", index=False
-                    )
+                    game_hist.to_csv(csv_filepath, index=False)
+
             except Exception as e:
                 print(e)
                 print(p)

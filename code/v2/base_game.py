@@ -1,9 +1,10 @@
-from tiles import *
+from v2.tiles import *
 from datetime import datetime
 
-from players import *
+from v2.players import *
 import pandas as pd
-from game_state import *
+from v2.game_state import *
+import math
 
 
 # fixed values
@@ -80,15 +81,26 @@ def end_of_game_output(state, print_output):  # pragma: no cover
             print("No winner")
     if print_output:
         print("GAME ENDED")
-    return p, winning_score
+
+    if math.isnan(p):
+        return [0 for i in range(4)]
+    elif p == state._current_player_number:
+        scores = [-winning_score for i in range(4)]
+        scores[p] = winning_score * 3
+    else:
+        scores = [0 for i in range(4)]
+        scores[p] = winning_score
+        scores[state._current_player_number] = -winning_score
+
+    return scores
 
 
-def main(player_types, completed_games, print_output=False):
+def main(player_types, simulations, print_output=False):
 
     # initiate game state
     deck = create_tiles()
     player_tiles = distribute_tiles(deck)
-    all_players = setup_players(player_types, player_tiles, completed_games)
+    all_players = setup_players(player_types, player_tiles, simulations)
 
     state = GameState(deck, all_players)
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import random
-from tiles import *
-from mcts import MonteCarloTreeSearchNode
+from v2.tiles import *
+from v2.mcts import MonteCarloTreeSearchNode
 
 
 class Player(ABC):
@@ -70,7 +70,10 @@ class Player(ABC):
         self._displayed_tiles.add_tiles(l)
         self._possible_discards.remove_tiles(l)
 
-    def discard(self, game_state=None):
+    def discard(self, game_state=None, specified_tile=None):
+        if specified_tile is not None:
+            self._possible_discards.remove(specified_tile)
+            return specified_tile
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         if tiles_by_suit[self.unwanted_suit].size() == 0:
             try:
@@ -122,7 +125,7 @@ class Player(ABC):
 
         if pengs == 4 or (pengs == 3 and pairs == 2):
             fan += 1
-        
+
         # golden single wait (4 sets of declared pengs and waiting for a pair) - 1 fan
         displayed_counts = self.displayed_tiles.tile_counts()
         displayed_pengs = 0
@@ -161,19 +164,23 @@ class Player(ABC):
         if hand.size() == 14:
             fan += 1
 
-        # 3 fan is max 
+        # 3 fan is max
         # (but maybe should remove this? larger scores might give mcts better results)
         if fan > 3:
             fan = 3
 
-        return 2 ** fan
+        return 2**fan
 
 
 class RandomAgent(Player):
     pass
 
+
 class HandScoreAgent(Player):
-    def discard(self, game_state=None):
+    def discard(self, game_state=None, specified_tile=None):
+        if specified_tile is not None:
+            self._possible_discards.remove(specified_tile)
+            return specified_tile
         score = 0
         position = 0
         for i in range(self.possible_discards.size()):
@@ -185,7 +192,6 @@ class HandScoreAgent(Player):
         tile = self.possible_discards.tiles[position]
         self._possible_discards.remove(tile)
         return tile
-
 
 
 class SemiRandomAgent(Player):

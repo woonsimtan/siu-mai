@@ -65,7 +65,7 @@ def parse_arguments():
         default=0,
     )
     parser.add_argument(
-        "-completed",
+        "-sim",
         help="Number of simulations the MCTS agent is supposed to run",
         type=int,
         required=False,
@@ -77,13 +77,6 @@ def parse_arguments():
         type=str,
         required=False,
         default="n",
-    )
-    parser.add_argument(
-        "-csv",
-        help="name of the csv file that game data should be saved to",
-        type=str,
-        required=False,
-        default="game_history",
     )
     parser.add_argument(
         "-agents",
@@ -102,7 +95,29 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/v3/data/{args.csv}.csv")
+
+    csv_filepath = f"{os.getcwd()}/v3/data/game_history_{args.agents.replace(',', '')}_{args.sim}.csv"
+
+    if os.path.exists(csv_filepath):
+        game_hist = pd.read_csv(csv_filepath)
+    else:
+        game_hist = pd.DataFrame(
+            columns=[
+                "game",
+                "player0_type",
+                "player1_type",
+                "player2_type",
+                "player3_type",
+                "player0_score",
+                "player1_score",
+                "player2_score",
+                "player3_score",
+                "player0_timeswon",
+                "player1_timeswon",
+                "player2_timeswon",
+                "player3_timeswon",
+            ]
+        )
 
     n = args.n
     save = args.save == "y"
@@ -115,15 +130,14 @@ def main():
         for i in range(n):
             print(f"Game {i + player_types.index(p) * n} played: {p}")
             try:
-                game_output = base_game(p, args.completed, True)
+                game_output = base_game(p, args.sim, True)
                 game_n = len(game_hist)
                 game_hist.loc[game_n] = [game_n] + p + game_output
 
                 if save:
                     # save data to files
-                    game_hist.to_csv(
-                        os.getcwd() + "/" + f"v3/data/{args.csv}.csv", index=False
-                    )
+                    game_hist.to_csv(csv_filepath, index=False)
+
             except Exception as e:
                 print(e)
                 print(p)

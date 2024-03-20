@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from base_game import main as base_game
+from v2.base_game import main as base_game
 import math
 from datetime import datetime
 import itertools
@@ -10,10 +10,9 @@ import traceback
 import time
 
 
-wins = {}
+scores = {}
 PLAYER_MAPPING = {0: "player0", 1: "player1", 2: "player2", 3: "player3"}
 POSSIBLE_AGENTS = {"m": "MCTS", "s": "SEMIRANDOM", "r": "RANDOM", "h": "HANDSCORE"}
-
 
 
 def add_to_wins(row):
@@ -23,35 +22,34 @@ def add_to_wins(row):
         players[p] = []
 
     for i in range(4):
-        players[row[PLAYER_MAPPING[i]]].append(i)
+        players[row[f"{PLAYER_MAPPING[i]}_type"]].append(i)
 
     chosen = {}
     for key, value in players.items():
         if len(value) != 0:
             chosen[key] = players[key][np.random.randint(len(players[key]))]
 
-    # games played
+    # number of games played
     for p in chosen.keys():
-        wins[p][1] += 1
+        scores[p][1] += 1
 
-    # winner
-    if not math.isnan(row["winning_player"]):
-        winner = int(row["winning_player"])
-        for agent, chosen_player in chosen.items():
-            if chosen_player == winner:
-                wins[agent][0] += 1
+    # add score for selected player
+    for agent, chosen_player in chosen.items():
+        scores[agent][0] += row[f"player{chosen_player}_score"]
 
 
 def win_rate(data):
     for agent in POSSIBLE_AGENTS.values():
-        wins[agent] = [0, 0]  # games won, games played
+        scores[agent] = [0, 0]  # games won, games played
 
     data.apply(lambda x: add_to_wins(x), axis=1)
 
 
 def generate_player_combinations(agent_input):
     if agent_input == "all":
-        combs = list(itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4))
+        combs = list(
+            itertools.combinations_with_replacement(list(POSSIBLE_AGENTS.values()), 4)
+        )
         list_ver = [list(comb) for comb in combs]
         return list_ver
     else:
@@ -69,8 +67,8 @@ def parse_arguments():
         default=0,
     )
     parser.add_argument(
-        "-completed",
-        help="Number of completed games the MCTS agent is supposed to run",
+        "-sim",
+        help="Number of simulations the MCTS agent is supposed to run",
         type=int,
         required=False,
         default=10,
@@ -109,8 +107,24 @@ def main():
     # open files
 
     args = parse_arguments()
-    game_hist = pd.read_csv(f"{os.getcwd()}/code/v2/data/{args.csv}.csv")
+    csv_filepath = f"{os.getcwd()}/v2/data/game_history_{args.agents.replace(',', '')}_{args.sim}.csv"
 
+    if os.path.exists(csv_filepath):
+        game_hist = pd.read_csv(csv_filepath)
+    else:
+        game_hist = pd.DataFrame(
+            columns=[
+                "game",
+                "player0_type",
+                "player1_type",
+                "player2_type",
+                "player3_type",
+                "player0_score",
+                "player1_score",
+                "player2_score",
+                "player3_score",
+            ]
+        )
     n = args.n
     save = args.save == "y"
     player_types = generate_player_combinations(args.agents)
@@ -122,15 +136,13 @@ def main():
         for i in range(n):
             print(f"Game {i + player_types.index(p) * n} played: {p}")
             try:
-                winning_player, winning_score = base_game(p, args.completed, True)
+                player_scores = base_game(p, args.sim, True)
                 game_n = len(game_hist)
-                game_hist.loc[game_n] = [game_n, winning_player] + p + [winning_score]
+                game_hist.loc[game_n] = [game_n] + p + player_scores
 
                 if save:
                     # save data to files
-                    game_hist.to_csv(
-                        os.getcwd() + "/" + f"code/v2/data/{args.csv}.csv", index=False
-                    )
+                    game_hist.to_csv(csv_filepath, index=False)
             except Exception as e:
                 print(e)
                 print(p)
@@ -151,10 +163,16 @@ def main():
 
     win_rate(game_hist)
 
+    # for agent in POSSIBLE_AGENTS.values():
+    #     if wins[agent][1] != 0:
+    #         print(
+    #             f"{agent} win rate: {round(wins[agent][0]/wins[agent][1] * 100, 2)}% ({wins[agent][0]} of {wins[agent][1]} games played)"
+    #         )
+
     for agent in POSSIBLE_AGENTS.values():
-        if wins[agent][1] != 0:
+        if scores[agent][1] != 0:
             print(
-                f"{agent} win rate: {round(wins[agent][0]/wins[agent][1] * 100, 2)}% ({wins[agent][0]} of {wins[agent][1]} games played)"
+                f"{agent} average score: {round(scores[agent][0]/scores[agent][1], 2)}"
             )
 
 

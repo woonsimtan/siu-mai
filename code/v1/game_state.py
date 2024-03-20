@@ -1,6 +1,6 @@
-from tiles import *
+from v1.tiles import *
 from copy import deepcopy
-from players import SemiRandomAgent
+from v1.players import SemiRandomAgent
 import pdb
 
 
@@ -87,7 +87,7 @@ class GameState:
         actions = []
         p = self._current_player_number
         if self._players[p].get_hidden_tiles().size() % 3 == 2:
-            for tile in self._players[p].get_hidden_tiles().tiles:
+            for tile in self._players[p].possible_discards.tiles:
                 actions.append(["DISCARD", tile])
         else:
             if self.any_peng() == p:
@@ -108,7 +108,7 @@ class GameState:
                     SemiRandomAgent(
                         self._players[i].possible_discards,
                         self._players[i].displayed_tiles,
-                        self._players[i].unwanted_suit
+                        self._players[i].unwanted_suit,
                     )
                 )
             else:
@@ -147,7 +147,7 @@ class GameState:
         """
         # copy values
         deck = self._deck.copy()
-        players = deepcopy(self._players)
+        players = [deepcopy(player) for player in self._players]
         discarded_tiles = self._discarded_tiles.copy()
         last_discarded = self._last_discarded.copy()
         current_player_number = self._current_player_number
@@ -181,7 +181,11 @@ class GameState:
         if (not game_end and action is None) or (
             action is not None and action[0] == "DISCARD"
         ):
-            if players[current_player_number].is_mcts():
+            if action is not None:
+                last_discarded = players[current_player_number].discard(
+                    specified_tile=action[1]
+                )
+            elif players[current_player_number].is_mcts():
                 last_discarded = players[current_player_number].discard(
                     GameState(
                         deck,
@@ -194,20 +198,10 @@ class GameState:
             else:
                 last_discarded = players[current_player_number].discard()
 
-        players_copy = []
-        for i in range(4):
-            if i == current_player_number:
-                players_copy.append(players[i])
-            else:
-                players_copy.append(self._players[i])
-
         # return new game state
         return GameState(
             deck,
-            players_copy,  # why does this instead of players mean that there isn't a problem of the peng being added to the wrong player?
-            # does it mean actually it's still adding peng to the wrong player?
-            # and i'm not seeing it because i'm doing this step?
-            # is that why players end up with unwanted suit in their displayed/locked tiles?
+            players,
             discarded_tiles,
             last_discarded,
             current_player_number,
