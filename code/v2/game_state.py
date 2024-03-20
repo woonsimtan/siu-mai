@@ -108,29 +108,100 @@ class GameState:
 
     def initialise_mcts_state(self):
         hidden_tiles = self.get_tiles_hidden_from_player()
-
         # reassign tiles
-        players = []
+        players = [0, 0, 0, 0]
+        # for current player initialise as a SemiRandomAgent with the same tiles
+        players[self._current_player_number] = SemiRandomAgent(
+            self._players[self._current_player_number].get_hidden_tiles(),
+            self._players[self._current_player_number].displayed_tiles,
+            self._players[self._current_player_number].unwanted_suit,
+            last_discarded=self._players[self._current_player_number].last_discarded,
+        )
+
         for i in range(4):
-            if i == self._current_player_number:
-                players.append(
-                    SemiRandomAgent(
-                        self._players[i].possible_discards,
-                        self._players[i].displayed_tiles,
-                        self._players[i].unwanted_suit,
+            if i != self._current_player_number:
+                # guess the tiles of the players who have discarded tiles not of their unwanted suit
+                # (they have no tiles of their unwanted suit in their hand)
+                if (
+                    self._players[i].last_discarded.suit_type
+                    != self._players[i].unwanted_suit
+                ):
+                    newly_assigned_tiles = TileList([])
+
+                    hidden_subset = TileList(
+                        [
+                            tile
+                            for tile in hidden_tiles.tiles
+                            if tile.suit_type != self._players[i].unwanted_suit
+                        ]
                     )
-                )
-            else:
-                newly_assigned_tiles = TileList([])
-                for j in range(13 - self._players[i].displayed_tiles.size()):
-                    newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
-                players.append(
-                    SemiRandomAgent(
+
+                    for j in range(
+                        min(
+                            self._players[i].get_hidden_tiles().size(),
+                            hidden_subset.size(),
+                        )
+                    ):
+                        newly_assigned_tiles.add(hidden_subset.remove_random_tile())
+
+                    # remove these tiles from hidden
+                    hidden_tiles.remove_tiles(newly_assigned_tiles)
+
+                    # if there are any issues default to blindly guessing
+                    for j in range(
+                        self._players[i].get_hidden_tiles().size()
+                        - newly_assigned_tiles.size()
+                    ):
+                        newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
+
+                    players[i] = SemiRandomAgent(
                         newly_assigned_tiles,
                         self._players[i].displayed_tiles,
                         self._players[i].unwanted_suit,
+                        last_discarded=self._players[i].last_discarded,
                     )
-                )
+
+        for i in range(4):
+            if i != self._current_player_number:
+                # guess the tiles of the players who have discarded tiles not of their unwanted suit
+                # (they have no tiles of their unwanted suit in their hand)
+                if (
+                    self._players[i].last_discarded.suit_type
+                    == self._players[i].unwanted_suit
+                ):
+                    newly_assigned_tiles = TileList([])
+
+                    for j in range(self._players[i].get_hidden_tiles().size()):
+                        newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
+
+                    players[i] = SemiRandomAgent(
+                        newly_assigned_tiles,
+                        self._players[i].displayed_tiles,
+                        self._players[i].unwanted_suit,
+                        last_discarded=self._players[i].last_discarded,
+                    )
+        # # reassign tiles
+        # players = []
+        # for i in range(4):
+        #     if i == self._current_player_number:
+        #         players.append(
+        #             SemiRandomAgent(
+        #                 self._players[i].possible_discards,
+        #                 self._players[i].displayed_tiles,
+        #                 self._players[i].unwanted_suit,
+        #             )
+        #         )
+        #     else:
+        #         newly_assigned_tiles = TileList([])
+        #         for j in range(13 - self._players[i].displayed_tiles.size()):
+        #             newly_assigned_tiles.add(hidden_tiles.remove_random_tile())
+        #         players.append(
+        #             SemiRandomAgent(
+        #                 newly_assigned_tiles,
+        #                 self._players[i].displayed_tiles,
+        #                 self._players[i].unwanted_suit,
+        #             )
+        #         )
 
         return GameState(
             hidden_tiles,
@@ -172,13 +243,6 @@ class GameState:
             current_player_number = self.any_peng()
             players[current_player_number].peng(last_discarded)
 
-            # check for tile count
-            if players[current_player_number].all_tiles().size() != 14:
-                print("ERROR during PENG")
-                print(players[current_player_number].all_tiles().size())
-                print(players[current_player_number].possible_discards.size())
-                print(players[current_player_number].displayed_tiles.size())
-                print(players[current_player_number].locked_tiles.size())
         # TODO: check these conditions (no peng occurs)
         if (
             (self.any_peng() != -1 and not choose_peng)

@@ -6,10 +6,15 @@ from v1.mcts import MonteCarloTreeSearchNode
 
 class Player(ABC):
     def __init__(
-        self, possible_discards, displayed_tiles=TileList([]), unwanted_suit=None
+        self,
+        possible_discards,
+        displayed_tiles=TileList([]),
+        unwanted_suit=None,
+        last_discarded=DUMMY_TILE,
     ):
         self._displayed_tiles = displayed_tiles
         self._possible_discards = possible_discards
+        self.last_discarded = last_discarded
 
         if unwanted_suit is None:
 
@@ -74,6 +79,7 @@ class Player(ABC):
         if specified_tile is not None:
             if self._possible_discards.contains(specified_tile):
                 self._possible_discards.remove(specified_tile)
+                self.last_discarded = specified_tile
                 return specified_tile
             else:
                 self.possible_discards.print()
@@ -83,7 +89,8 @@ class Player(ABC):
         tiles_by_suit = self.possible_discards.get_tiles_by_suit()
         if tiles_by_suit[self.unwanted_suit].size() == 0:
             try:
-                return self._possible_discards.remove_random_tile()
+                self.last_discarded = self._possible_discards.remove_random_tile()
+                return self.last_discarded
             except:
                 print(self.unwanted_suit)
                 self._displayed_tiles.print()
@@ -93,6 +100,7 @@ class Player(ABC):
         else:
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
+            self.last_discarded = tile
             return tile
 
     def get_hidden_tiles(self):
@@ -115,25 +123,32 @@ class HandScoreAgent(Player):
             self._possible_discards.remove(specified_tile)
             self.last_discarded = specified_tile
             return specified_tile
-
-        score = 0
-        position = 0
-        for i in range(self.possible_discards.size()):
-            copy = self.possible_discards.copy()
-            copy.remove(self.possible_discards.tiles[i])
-            if copy.hand_score(self.unwanted_suit) > score:
-                score = copy.hand_score(self.unwanted_suit)
-                position = i
-        tile = self.possible_discards.tiles[position]
-        self._possible_discards.remove(tile)
-        return tile
+        else:
+            score = 0
+            position = 0
+            for i in range(self.possible_discards.size()):
+                copy = self.possible_discards.copy()
+                copy.remove(self.possible_discards.tiles[i])
+                if copy.hand_score(self.unwanted_suit) > score:
+                    score = copy.hand_score(self.unwanted_suit)
+                    position = i
+            tile = self.possible_discards.tiles[position]
+            self._possible_discards.remove(tile)
+            self.last_discarded = tile
+            return tile
 
 
 class SemiRandomAgent(Player):
     def __init__(
-        self, possible_discards, displayed_tiles=TileList([]), unwanted_suit=None
+        self,
+        possible_discards,
+        displayed_tiles=TileList([]),
+        unwanted_suit=None,
+        last_discarded=DUMMY_TILE,
     ):
-        super().__init__(possible_discards, displayed_tiles, unwanted_suit)
+        super().__init__(
+            possible_discards, displayed_tiles, unwanted_suit, last_discarded
+        )
         self._pair = TileList([])
         self._locked_tiles = TileList([])
 
@@ -210,8 +225,10 @@ class SemiRandomAgent(Player):
 
 
 class MCTSAgent(Player):
-    def __init__(self, possible_discards, player_number, simulations):
-        super().__init__(possible_discards)
+    def __init__(
+        self, possible_discards, player_number, simulations, last_discarded=DUMMY_TILE
+    ):
+        super().__init__(possible_discards, last_discarded=last_discarded)
         self.player_number = player_number
         self.simulations_to_run = simulations
 
@@ -221,26 +238,22 @@ class MCTSAgent(Player):
         if tiles_by_suit[self.unwanted_suit].size() > 0:
             tile = tiles_by_suit[self.unwanted_suit].remove_random_tile()
             self._possible_discards.remove(tile)
+            self.last_discarded = tile
             return tile
         else:
-            # create state for mcts
-            # print("initialised with current player: ", game_state._current_player_number)
             root = MonteCarloTreeSearchNode(
                 game_state.initialise_mcts_state(), self.simulations_to_run
             )
             selected_node = root.best_action()
 
             if selected_node == -1:
-                # print("MCTS failed: discarding random tile")
-                return self._possible_discards.remove_random_tile()
+                self.last_discarded = self._possible_discards.remove_random_tile()
+                return self.last_discarded
             else:
-                # print(
-                #     "action selected: discard", selected_node.parent_action[1].to_string()
-                # )
-                self._possible_discards.remove_tiles(
-                    TileList([selected_node.parent_action[1]])
-                )
-                return selected_node.parent_action[1]
+                to_discard = selected_node.parent_action[1]
+                self._possible_discards.remove(to_discard)
+                self.last_discarded = to_discard
+                return to_discard
 
     def is_mcts(self):
         return True
