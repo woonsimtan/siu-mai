@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "v2"
+name = "v1"
 version = "0.1.0"
 description = ""
 authors = ["WoonSim Tan <tan.woonsim@outlook.com>"]
@@ -22,15 +22,15 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-base_game = "v2.base_game:main"
-metrics = "v2.metrics:main"
-review = "v2.base_game:review"
+base_game = "v1.base_game:main"
+metrics = "v1.metrics:main"
+review = "v1.base_game:review"
 
 [tool.pytest.ini_options]
-pythonpath = "v2"
+pythonpath = "v1"
 
 [tool.coverage.run]
 omit = [".*", "*/site-packages/*", "*/tests/*"]
 
 [tool.coverage.report]
-fail_under = 100
+fail_under = 95

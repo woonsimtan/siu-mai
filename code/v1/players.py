@@ -33,17 +33,17 @@ class Player(ABC):
     def displayed_tiles(self):
         return self._displayed_tiles.copy()
 
-    @displayed_tiles.setter
-    def displayed_tiles(self, value):
-        self._displayed_tiles = value
+    # @displayed_tiles.setter
+    # def displayed_tiles(self, value):
+    #     self._displayed_tiles = value
 
     @property
     def possible_discards(self):
         return self._possible_discards.copy()
 
-    @possible_discards.setter
-    def possible_discards(self, value):
-        self._possible_discards = value
+    # @possible_discards.setter
+    # def possible_discards(self, value):
+    #     self._possible_discards = value
 
     def pickup(self, tile):
         self._possible_discards.add(tile)
