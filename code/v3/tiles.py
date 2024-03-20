@@ -194,45 +194,57 @@ class TileList:
 
         return bt(counts, False)
 
-
-
     def hand_score(self, unwanted_suit):
+        """
+        Winning hand requires M x triples + N sequences + K pairs
+        where (K = 1 and M + N = 4) or (K = 7)
+
+        Don't care about the exact score but needs to follow these constraints:
+        - score < 1
+        - score = -1 if hand has unwanted suit
+        """
         # check suit count
         if self.get_tiles_by_suit()[unwanted_suit].size() > 0:
-            return 0
+            return -1
 
         counts = self.tile_counts()
-        triples = len(
-            [
-                Tile(tile_str[:-1], tile_str[-1])
-                for tile_str in counts.keys()
-                if counts[tile_str] >= 3
-            ]
-        )
+        triples = [
+            Tile(tile_str[:-1], tile_str[-1])
+            for tile_str in counts.keys()
+            if counts[tile_str] >= 3
+        ]
 
+        copy = self.copy()
+        for t in triples:
+            copy.remove_tiles(TileList([t] * 3))
+
+        copy.sort()
+        i = 0
+        seq = 0
+        while i < copy.size():
+            tile = copy.tiles[i]
+            second = Tile(tile.suit_type, str(int(tile.value) + 1))
+            third = Tile(tile.suit_type, str(int(tile.value) + 2))
+            if copy.contains(tile) and copy.contains(second) and copy.contains(third):
+                seq += 1
+                i += 3
+            else:
+                i += 1
+
+        copy_counts = copy.tile_counts()
         pairs = len(
             [
                 Tile(tile_str[:-1], tile_str[-1])
-                for tile_str in counts.keys()
-                if counts[tile_str] == 2 or counts[tile_str] == 4
+                for tile_str in copy_counts.keys()
+                if copy_counts[tile_str] % 2 == 0
             ]
         )
 
-        self.sort()
-        seq = 0
-        for tile in self.tiles:
-            second = Tile(tile.suit_type, str(int(tile.value) + 1))
-            third = Tile(tile.suit_type, str(int(tile.value) + 2))
-            if self.contains(tile) and self.contains(second) and self.contains(third):
-                seq += 1
+        # 10 is arbitrary, just to scale score to be less than 1
+        score = (pairs > 0) + len(triples) + seq + max(0, pairs - 1) * 0.67
+        score = score / 10
 
-        # 10 is arbitrary
-        score = (pairs + triples + seq) / 20
-
-        # self.print()
-        # print(score)
-
-        if score > 1:
-            raise ValueError("Invalid score:", score)
+        # # self.print()
+        # # print(score)
 
         return score
